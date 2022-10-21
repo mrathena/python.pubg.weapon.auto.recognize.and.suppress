@@ -24,12 +24,12 @@ imgs, names = load(directory)
 print(f'载入{len(imgs)}张图片')
 
 
-l, t = 2253, 125
+left, top, width, height = 2253, 125, 260, 42
 exclude = set()
 data = []
 # 图片尺寸: 260,42
-for row in range(0, 42):
-    for col in range(0, 260):
+for row in range(0, height):
+    for col in range(0, width):
         # 轮流遍历每张图片的同一个点, 如果该点只有一张图片是纯白色, 则该点为该图片的识别点, 输入记录
         # 某点纯白色次数
         counter = 0
@@ -45,9 +45,9 @@ for row in range(0, 42):
                 temp = i
         if counter == 1:
             name = names[temp]
-            print(f'用于验证的数据:{row}, {col} - 截图上的坐标:({col},{row}) - 对应游戏内的点的坐标:({l + col},{t + row}) - {name}')
+            print(f'用于验证的数据:{row}, {col} - 截图上的坐标:({col},{row}) - 对应游戏内的点的坐标:({left + col},{top + row}) - {name}')
             exclude.add(name)
-            data.append((l + col, t + row, name))
+            data.append((left + col, top + row, name))
 
 
 print(f'data = [')
