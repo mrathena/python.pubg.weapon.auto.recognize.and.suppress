@@ -1,7 +1,5 @@
 import os
-
 import cv2
-
 
 directory = r'34401440\group'
 
@@ -56,16 +54,3 @@ print(f'data = [')
 for item in data:
     print(f'    {item},')
 print(f']')
-
-
-
-
-
-
-
-
-
-
-
-
-
