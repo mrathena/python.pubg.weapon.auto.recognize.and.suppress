@@ -18,10 +18,10 @@ def mouse():
             if button == pynput.mouse.Button.x2:
                 return False
             elif button == pynput.mouse.Button.x1:
+                winsound.Beep(800, 200)
                 # 截图, 3440×1440
                 img = grab((2212, 330, 66, 66))
                 mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/muzzle/{int(time.time())}.png')
-                winsound.Beep(800, 200)
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()
