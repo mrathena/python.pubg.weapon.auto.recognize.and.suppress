@@ -1,8 +1,6 @@
 import time
 
-import cv2
 import mss
-import numpy as np
 import pynput
 import winsound
 
