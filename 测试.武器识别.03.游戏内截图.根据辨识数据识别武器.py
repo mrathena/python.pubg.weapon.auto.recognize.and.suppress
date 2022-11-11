@@ -84,29 +84,35 @@ def mouse():
                     counter += 1
         return data.get(counter)
 
+    def cost(interval):
+        """
+        输入纳秒间距, 转换为合适的单位
+        """
+        if interval < 1000:
+            return f'{interval}ns'
+        elif interval < 1_000_000:
+            return f'{interval / 1000}us'
+        elif interval < 1_000_000_000:
+            return f'{interval / 1_000_000}ms'
+        else:
+            return f'{interval / 1_000_000_000}s'
+
     def show():
         region1 = (2253, 125, 260, 42)  # 一号武器
         region2 = (2253, 432, 260, 42)  # 二号武器
         t1 = time.perf_counter_ns()
-        img1 = grab(region1)
-        img2 = grab(region2)
-        t2 = time.perf_counter_ns()
-        img = cv2.cvtColor(np.array(img1), cv2.COLOR_BGRA2BGR)
+        img = grab(region1)
+        img = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2BGR)
         name1 = recognize(img)
-        t3 = time.perf_counter_ns()
-        img = cv2.cvtColor(np.array(img2), cv2.COLOR_BGRA2BGR)
+        t2 = time.perf_counter_ns()
+        img = grab(region2)
+        img = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2BGR)
         name2 = recognize(img)
-        t4 = time.perf_counter_ns()
+        t3 = time.perf_counter_ns()
         print('----------')
-        print(f'武器一: {name1}')
-        print(f'武器二: {name2}')
-        interval = t2 - t1
-        print(f'截图耗时: {interval}ns, {interval // 1_000_000}ms')
-        interval = t4 - t2
-        print(f'识别耗时: {interval}ns, {interval // 1_000_000}ms')
-        interval = t4 - t1
-        print(f'总耗时: {interval}ns, {interval // 1_000_000}ms')
-
+        print(f'武器一: {name1}, {cost(t2 - t1)}')
+        print(f'武器二: {name2}, {cost(t3 - t2)}')
+        print(f'总耗时: {cost(t3 - t1)}')
 
     def down(x, y, button, pressed):
         if pressed:
