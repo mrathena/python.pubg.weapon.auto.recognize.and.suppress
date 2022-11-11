@@ -1,5 +1,8 @@
 import time
+
+import cv2
 import mss
+import numpy as np
 import pynput
 import winsound
 
@@ -18,10 +21,16 @@ def mouse():
             if button == pynput.mouse.Button.x2:
                 return False
             elif button == pynput.mouse.Button.x1:
+                winsound.Beep(800, 200)
                 # 截图, 3440×1440
                 img = grab((2348, 330, 66, 66))
                 mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/foregrip/{int(time.time())}.png')
-                winsound.Beep(800, 200)
+
+                # img = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2BGR)
+                # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                # # cv2.imwrite(f'image/3440.1440/weapon.attachment/foregrip/_gray_{int(time.time())}.jpg', img)
+                # _, img = cv2.threshold(img, 30, 255, cv2.THRESH_BINARY)
+                # cv2.imwrite(f'image/3440.1440/weapon.attachment/foregrip/_binary_{int(time.time())}.jpg', img)
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()
