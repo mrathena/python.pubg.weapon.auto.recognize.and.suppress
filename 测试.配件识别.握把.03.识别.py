@@ -4,14 +4,11 @@ import cv2
 import mss
 import numpy as np
 import pynput
-import matplotlib
-matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
 
 from toolkit import Game, Timer
 
 # 载入对比图片
-imgs = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True, threshold=30)
+imgs = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True, threshold=40)
 
 
 def mouse():
@@ -26,7 +23,7 @@ def mouse():
         """
         入参图片需为 OpenCV 格式
         """
-        img = Game.Image.convert(img, gray=True, binary=True, threshold=30)
+        img = Game.Image.convert(img, gray=True, binary=True, threshold=40)
         for name, standard in imgs:
             similarity = Game.Image.similarity(standard, img)
             if similarity > 0.98:
