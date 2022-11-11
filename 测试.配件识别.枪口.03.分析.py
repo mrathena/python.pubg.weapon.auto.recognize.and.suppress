@@ -31,11 +31,11 @@ def load(directory):
     return imgs if imgs else None
 
 
-rets = load(r'image/3440.1440/weapon.attachment/foregrip')
+rets = load(r'image/3440.1440/weapon.attachment/muzzle')
 imgs = [img for name, img in rets]
 
-row = 7
-col = 7
+row = 11
+col = 11
 counter = 0
 zeros = np.zeros(imgs[0].shape[:2], dtype="uint8")
 plt.figure(figsize=(15, 10))

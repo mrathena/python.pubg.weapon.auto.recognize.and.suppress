@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import d3dshot
 import mss as pymss
@@ -145,3 +147,102 @@ class Monitor:
         """
         w, h = Monitor.resolution()
         return w // 2, h // 2
+
+
+class Timer:
+
+    @staticmethod
+    def cost(interval):
+        """
+        转换耗时, 输入纳秒间距, 转换为合适的单位
+        """
+        if interval < 1000:
+            return f'{interval}ns'
+        elif interval < 1_000_000:
+            return f'{interval / 1000}us'
+        elif interval < 1_000_000_000:
+            return f'{interval / 1_000_000}ms'
+        else:
+            return f'{interval / 1_000_000_000}s'
+
+
+class Game:
+
+    class Image:
+
+        @staticmethod
+        def convert(img, gray=False, binary=False, threshold=0):
+            """
+            图片(OpenCV BGR 格式)做灰度化和二值化处理
+            """
+            if gray:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                if binary:
+                    _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+            return img
+
+        @staticmethod
+        def read(path, gray=False, binary=False, threshold=0):
+            """
+            读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
+            """
+            if gray:
+                img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+                if binary:
+                    _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+            else:
+                img = cv2.imread(path)
+            return img
+
+        @staticmethod
+        def load(directory, gray=False, binary=False, threshold=0):
+            """
+            递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
+            :param directory: 目录
+            :param gray: 图片是否灰做度化处理
+            :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
+            :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+            """
+            imgs = []
+            for item in os.listdir(directory):
+                # item, 不包含路径前缀
+                # path, 完整路径
+                path = os.path.join(directory, item)
+                if os.path.isdir(path):
+                    temp = Game.Image.load(path, gray, binary, threshold)
+                    imgs.extend(temp)
+                elif os.path.isfile(path):
+                    name = os.path.splitext(item)[0]
+                    img = Game.Image.read(path, gray, binary, threshold)
+                    imgs.append((name, img))
+            return imgs if imgs else None
+
+        @staticmethod
+        def similarity(img1, img2, gray=False, binary=False, threshold=0):
+            """
+            两张相同 shape OpenCV BGR 格式图片
+            或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
+            简单求的相似度(图片需经过灰度化与二值化处理)
+            :param img1: 图片1
+            :param img2: 图片2
+            :param gray: 图片是否灰做度化处理
+            :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
+            :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+            """
+            if img1.shape != img2.shape:
+                return 0
+            img1 = Game.Image.convert(img1, gray, binary, threshold)
+            img2 = Game.Image.convert(img2, gray, binary, threshold)
+            # 遍历图片, 计算同一位置相同色占总色数的比例
+            height, width = img1.shape  # 经过处理后, 通道数只剩1个了
+            counter = 0
+            for row in range(0, height):
+                for col in range(0, width):
+                    if img1[row][col] == img2[row][col]:
+                        counter += 1
+            return counter / (width * height)
+
+
+
+
+

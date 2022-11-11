@@ -1,17 +1,35 @@
+import os
+
 import cv2
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 
 
-from toolkit import Game
+def load(directory):
+    """
+    递归载入指定路径下的所有图片(灰度化二值化), 按照 (name, img) 的格式组合成为列表并返回
+    """
+    imgs = []
+    for item in os.listdir(directory):
+        # item, 不包含路径前缀
+        # path, 完整路径
+        path = os.path.join(directory, item)
+        if os.path.isdir(path):
+            temp = load(path)
+            imgs.extend(temp)
+        elif os.path.isfile(path):
+            name = os.path.splitext(item)[0]
+            img = cv2.imread(path)
+            imgs.append((name, img))
+    return imgs if imgs else None
 
 
-rets = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip')
-row = 7
-col = 11
+rets = load(r'image/3440.1440/weapon.attachment/muzzle')
+row = 11
+col = 12
 counter = 0
-plt.figure(figsize=(19, 10))
+plt.figure(figsize=(20, 14))
 for name, img in rets:
 
     counter += 1
@@ -66,6 +84,11 @@ for name, img in rets:
 
     counter += 1
     img = cv2.adaptiveThreshold(gray, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
+    plt.subplot(row, col, counter)
+    plt.imshow(img, cmap='gray')
+
+    counter += 1
+    img = cv2.adaptiveThreshold(gray, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=33, C=1)
     plt.subplot(row, col, counter)
     plt.imshow(img, cmap='gray')
 
