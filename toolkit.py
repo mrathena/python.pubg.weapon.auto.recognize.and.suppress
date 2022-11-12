@@ -1,6 +1,4 @@
 import os
-import time
-
 import cv2
 import d3dshot
 import mss as pymss
