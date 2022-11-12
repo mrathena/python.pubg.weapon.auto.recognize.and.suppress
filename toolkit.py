@@ -257,6 +257,8 @@ class Game:
                 return 0
             img1 = Game.Image.convert(img1, gray, binary)
             img2 = Game.Image.convert(img2, gray, binary)
+            # cv2.imwrite('1.jpg', img1)
+            # cv2.imwrite('2.jpg', img2)
             # 遍历图片, 计算同一位置相同色占总色数的比例
             height, width = img1.shape  # 经过处理后, 通道数只剩1个了
             # 相似度列表
@@ -270,7 +272,7 @@ class Game:
                     # print('-')
                     # 计算当前格子的w和h
                     w = block if j + 1 < col else (width - (col - 1) * block)
-                    h = block if i + 1 < col else (height - (row - 1) * block)
+                    h = block if i + 1 < row else (height - (row - 1) * block)
                     # print(f'当前遍历第{i + 1}行第{j + 1}列的块, 该块的宽度:{w},高度:{h}, 即该块有{h}行{w}列')
                     counter = 0
                     for x in range(block * i, block * i + h):
