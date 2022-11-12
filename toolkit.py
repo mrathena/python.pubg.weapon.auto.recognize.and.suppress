@@ -282,7 +282,7 @@ class Game:
                                 counter += 1
                     similarity = counter / (w * h)
                     # print(f'当前块的相似度是:{similarity}')
-                    similarities.append(similarity ** 2)
+                    similarities.append(similarity ** 3)
             # print(similarities)
             return sum(similarities) / len(similarities)
 

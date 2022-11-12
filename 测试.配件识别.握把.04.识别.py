@@ -27,7 +27,7 @@ def mouse():
         for name, standard in imgs:
             similarity = Game.Image.similarity(standard, img)
             print(similarity, name)
-            if similarity > 0.9:
+            if similarity > 0.95:
                 return name
         return None
 
@@ -37,13 +37,11 @@ def mouse():
         print('==========')
         t1 = time.perf_counter_ns()
         img1 = grab(region1)
-        # mss.tools.to_png(img1.rgb, img1.size, output=f'{int(time.time())}.png')
         img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_BGRA2BGR)
         name1 = recognize(img1)
         t2 = time.perf_counter_ns()
         print('----------')
         img2 = grab(region2)
-        # mss.tools.to_png(img2.rgb, img2.size, output=f'{int(time.time()) + 1}.png')
         img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_BGRA2BGR)
         name2 = recognize(img2)
         t3 = time.perf_counter_ns()
