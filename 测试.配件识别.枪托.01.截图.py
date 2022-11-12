@@ -19,7 +19,7 @@ def mouse():
                 return False
             elif button == pynput.mouse.Button.x1:
                 # 截图, 3440×1440
-                img = grab((2778, 330, 66, 66))
+                img = grab((2780, 332, 62, 62))
                 mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/stock/{int(time.time())}.png')
                 winsound.Beep(800, 200)
 
