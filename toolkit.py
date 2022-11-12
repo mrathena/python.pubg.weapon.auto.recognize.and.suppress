@@ -218,9 +218,9 @@ class Game:
             return imgs if imgs else None
 
         @staticmethod
-        def similarity(img1, img2, gray=False, binary=False, threshold=0):
+        def similarity(img1, img2, gray=False, binary=False, threshold=0, block=10):
             """
-            两张相同 shape OpenCV BGR 格式图片
+            两张相同宽高和通道数的 OpenCV BGR 格式图片
             或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
             简单求的相似度(图片需经过灰度化与二值化处理)
             :param img1: 图片1
@@ -228,6 +228,7 @@ class Game:
             :param gray: 图片是否灰做度化处理
             :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
             :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+            :param block: 分块对比的块边长, 从1开始, 边长越大精度越低
             """
             if img1.shape != img2.shape:
                 return 0
@@ -235,12 +236,30 @@ class Game:
             img2 = Game.Image.convert(img2, gray, binary, threshold)
             # 遍历图片, 计算同一位置相同色占总色数的比例
             height, width = img1.shape  # 经过处理后, 通道数只剩1个了
-            counter = 0
-            for row in range(0, height):
-                for col in range(0, width):
-                    if img1[row][col] == img2[row][col]:
-                        counter += 1
-            return counter / (width * height)
+            # 相似度列表
+            similarities = []
+            # 根据给定的block大小计算分割的行列数, 将图片分为row行col列个格子(注意最后一行和最后一列的格子不一定是block大小)
+            row = 1 if block >= height else (height // block + (0 if height % block == 0 else 1))
+            col = 1 if block >= width else (width // block + (0 if width % block == 0 else 1))
+            # print(f'图片宽度:{width},高度:{height}, 以块边长:{block}, 分为{row}行{col}列')
+            for i in range(0, row):
+                for j in range(0, col):
+                    # print('-')
+                    # 计算当前格子的w和h
+                    w = block if j + 1 < col else (width - (col - 1) * block)
+                    h = block if i + 1 < col else (height - (row - 1) * block)
+                    # print(f'当前遍历第{i + 1}行第{j + 1}列的块, 该块的宽度:{w},高度:{h}, 即该块有{h}行{w}列')
+                    counter = 0
+                    for x in range(block * i, block * i + h):
+                        for y in range(block * j, block * j + w):
+                            # print(f'x:{x},y:{y}')
+                            if img1[x][y] == img2[x][y]:
+                                counter += 1
+                    similarity = counter / (w * h)
+                    # print(f'当前块的相似度是:{similarity}')
+                    similarities.append(similarity ** 10)
+            # print(similarities)
+            return sum(similarities) / len(similarities)
 
 
 
