@@ -10,7 +10,7 @@ from toolkit import Game
 
 
 rets = Game.Image.load(r'image/3440.1440/weapon.attachment/test.binary')
-row = 8
+row = 9  # 有几张图片这里就写几
 col = 24
 counter = 0
 plt.figure(figsize=(25, 12))
