@@ -1,6 +1,12 @@
+import cv2
+
 from toolkit import Game
 
-img1 = Game.Image.read('image/3440.1440/weapon.attachment/foregrip/Angled Foregrip.png')
-img2 = Game.Image.read('image/3440.1440/weapon.attachment/foregrip/Angled Foregrip.png')
+img = Game.Image.read('image/3440.1440/weapon.attachment/foregrip/Angled Foregrip.png', gray=True)
 
-print(Game.Image.similarity(img1, img2, gray=True, binary=True, threshold=40, block=11))
+img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
+
+img = Game.Image.remove_small_objects(img, 0)
+
+cv2.imshow('1', img)
+cv2.waitKey(0)

@@ -21,7 +21,7 @@ def mouse():
             elif button == pynput.mouse.Button.x1:
                 winsound.Beep(800, 200)
                 # 截图, 3440×1440
-                img = grab((2348, 330, 66, 66))
+                img = grab((2350, 332, 62, 62))
                 mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/foregrip/{int(time.time())}.png')
 
                 # img = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2BGR)

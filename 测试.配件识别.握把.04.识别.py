@@ -8,7 +8,7 @@ import pynput
 from toolkit import Game, Timer
 
 # 载入对比图片
-imgs = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True, threshold=30)
+imgs = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True)
 
 
 def mouse():
@@ -23,23 +23,27 @@ def mouse():
         """
         入参图片需为 OpenCV 格式
         """
-        img = Game.Image.convert(img, gray=True, binary=True, threshold=30)
+        img = Game.Image.convert(img, gray=True, binary=True)
         for name, standard in imgs:
             similarity = Game.Image.similarity(standard, img)
             print(similarity, name)
-            if similarity > 0.97:
+            if similarity > 0.9:
                 return name
         return None
 
     def show():
-        region1 = (2348, 330, 66, 66)  # 一号武器
-        region2 = (2348, 637, 66, 66)  # 二号武器
+        region1 = (2350, 332, 62, 62)  # 一号武器
+        region2 = (2350, 639, 62, 62)  # 二号武器
+        print('==========')
         t1 = time.perf_counter_ns()
         img1 = grab(region1)
+        # mss.tools.to_png(img1.rgb, img1.size, output=f'{int(time.time())}.png')
         img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_BGRA2BGR)
         name1 = recognize(img1)
         t2 = time.perf_counter_ns()
+        print('----------')
         img2 = grab(region2)
+        # mss.tools.to_png(img2.rgb, img2.size, output=f'{int(time.time()) + 1}.png')
         img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_BGRA2BGR)
         name2 = recognize(img2)
         t3 = time.perf_counter_ns()
