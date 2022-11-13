@@ -5,11 +5,11 @@ import mss
 import numpy as np
 import pynput
 
-from toolkit import Game, Timer
+from toolkit import Image, Timer
 
 # 载入对比图片
-imgs1 = Game.Image.load(r'image/3440.1440/weapon.attachment/sight/1', gray=True, binary=True)
-imgs2 = Game.Image.load(r'image/3440.1440/weapon.attachment/sight/2', gray=True, binary=True)
+imgs1 = Image.load(r'image/3440.1440/weapon.attachment/sight/1', gray=True, binary=True)
+imgs2 = Image.load(r'image/3440.1440/weapon.attachment/sight/2', gray=True, binary=True)
 
 
 def mouse():
@@ -24,9 +24,9 @@ def mouse():
         """
         入参图片需为 OpenCV 格式
         """
-        img = Game.Image.convert(img, gray=True, binary=True)
+        img = Image.convert(img, gray=True, binary=True)
         for name, standard in imgs:
-            similarity = Game.Image.similarity(standard, img)
+            similarity = Image.similarity(standard, img)
             print(similarity, name)
             if similarity > 0.9:
                 return name

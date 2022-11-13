@@ -4,10 +4,10 @@ matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 
 
-from toolkit import Game
+from toolkit import Image
 
 
-rets = Game.Image.load(r'image/3440.1440/weapon.attachment/sight')
+rets = Image.load(r'image/3440.1440/weapon.attachment/sight')
 row = 11
 col = 3
 counter = 0
@@ -25,7 +25,7 @@ for name, img in rets:
     plt.imshow(gray, cmap='gray')
 
     counter += 1
-    img = Game.Image.convert(img, True, True)
+    img = Image.convert(img, True, True)
     plt.subplot(row, col, counter)
     plt.imshow(img, cmap='gray')
 

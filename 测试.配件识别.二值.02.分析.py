@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from toolkit import Game
 
 
-rets = Game.Image.load(r'image/3440.1440/weapon.attachment/test.binary')
+rets = Image.load(r'image/3440.1440/weapon.attachment/test.binary')
 row = 11  # 有几张图片这里就写几
 col = 24
 counter = 0
@@ -134,7 +134,7 @@ for name, img in rets:
     # 消除二值图像孤立点
     # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)  # 降噪, 对单独的黑点不管用
     # img = morphology.remove_small_objects(img, 10)  # numpy 中的值必须是 True / False 才能消除, 也就是需要转换二值图像
-    img = Game.Image.remove_small_objects(img, 10)
+    img = Image.remove_small_objects(img, 10)
     plt.subplot(row, col, counter)
     plt.imshow(img, cmap='gray')
 

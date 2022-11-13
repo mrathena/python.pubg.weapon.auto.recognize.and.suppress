@@ -5,7 +5,7 @@ import mss
 import numpy as np
 import pynput
 
-from toolkit import Game, Timer
+from toolkit import Image, Timer
 
 one = 'one'
 two = 'two'
@@ -84,11 +84,11 @@ data = {
 
 
 # 载入对比图片
-imgs_sight_1 = Game.Image.load(r'image/3440.1440/weapon.attachment/sight/1', gray=True, binary=True)
-imgs_sight_2 = Game.Image.load(r'image/3440.1440/weapon.attachment/sight/2', gray=True, binary=True)
-imgs_muzzle = Game.Image.load(r'image/3440.1440/weapon.attachment/muzzle', gray=True, binary=True)
-imgs_foregrip = Game.Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True)
-imgs_stock = Game.Image.load(r'image/3440.1440/weapon.attachment/stock', gray=True, binary=True)
+imgs_sight_1 = Image.load(r'image/3440.1440/weapon.attachment/sight/1', gray=True, binary=True)
+imgs_sight_2 = Image.load(r'image/3440.1440/weapon.attachment/sight/2', gray=True, binary=True)
+imgs_muzzle = Image.load(r'image/3440.1440/weapon.attachment/muzzle', gray=True, binary=True)
+imgs_foregrip = Image.load(r'image/3440.1440/weapon.attachment/foregrip', gray=True, binary=True)
+imgs_stock = Image.load(r'image/3440.1440/weapon.attachment/stock', gray=True, binary=True)
 
 
 def cut(img, region):
@@ -121,9 +121,9 @@ def recognize_attachment(imgs, img):
     """
     入参图片需为 OpenCV 格式
     """
-    img = Game.Image.convert(img, gray=True, binary=True)
+    img = Image.convert(img, gray=True, binary=True)
     for name, standard in imgs:
-        similarity = Game.Image.similarity(standard, img)
+        similarity = Image.similarity(standard, img)
         # print(similarity, name)
         if similarity > 0.925:
             return name

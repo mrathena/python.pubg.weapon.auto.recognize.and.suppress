@@ -5,9 +5,9 @@ import mss as pymss
 import numpy as np
 from skimage import measure  # pip install scikit-image
 
-from win32api import GetSystemMetrics
+from win32api import GetSystemMetrics  # conda install pywin32
 from win32con import SRCCOPY, SM_CXSCREEN, SM_CYSCREEN
-from win32gui import GetDesktopWindow, GetWindowDC, DeleteObject, ReleaseDC
+from win32gui import GetDesktopWindow, GetWindowDC, DeleteObject, ReleaseDC, GetWindowText, GetForegroundWindow
 from win32ui import CreateDCFromHandle, CreateBitmap
 
 
@@ -166,127 +166,153 @@ class Timer:
             return f'{interval / 1_000_000_000}s'
 
 
-class Game:
+class Image:
 
-    class Image:
+    @staticmethod
+    def remove_small_objects(img, threshold):
+        """
+        消除二值图像中面积小于某个阈值的连通域(消除孤立点)
+        :param img: 二值图像(白底黑图)
+        :param threshold: 符合面积条件大小的阈值
+        """
+        img_label, num = measure.label(img, background=255, connectivity=2, return_num=True)  # 输出二值图像中所有的连通域
+        props = measure.regionprops(img_label)  # 输出连通域的属性，包括面积等
+        resMatrix = np.zeros(img_label.shape)  # 创建0图
+        for i in range(0, len(props)):
+            if props[i].area > threshold:
+                tmp = (img_label == i + 1).astype(np.uint8)
+                resMatrix += tmp  # 组合所有符合条件的连通域
+        resMatrix *= 255
+        return 255 - resMatrix  # 本来输出的是黑底百图, 这里特意转换了黑白
 
-        @staticmethod
-        def remove_small_objects(img, threshold):
-            """
-            消除二值图像中面积小于某个阈值的连通域(消除孤立点)
-            :param img: 二值图像(白底黑图)
-            :param threshold: 符合面积条件大小的阈值
-            """
-            img_label, num = measure.label(img, background=255, connectivity=2, return_num=True)  # 输出二值图像中所有的连通域
-            props = measure.regionprops(img_label)  # 输出连通域的属性，包括面积等
-            resMatrix = np.zeros(img_label.shape)  # 创建0图
-            for i in range(0, len(props)):
-                if props[i].area > threshold:
-                    tmp = (img_label == i + 1).astype(np.uint8)
-                    resMatrix += tmp  # 组合所有符合条件的连通域
-            resMatrix *= 255
-            return 255 - resMatrix  # 本来输出的是黑底百图, 这里特意转换了黑白
+    @staticmethod
+    def convert(img, gray=False, binary=False):
+        """
+        图片(OpenCV BGR 格式)做灰度化和二值化处理
+        """
+        if gray:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            if binary:
+                # 自适应二值化
+                img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
+                # 消除二值图像孤立点
+                img = Image.remove_small_objects(img, 10)
+        return img
 
-        @staticmethod
-        def convert(img, gray=False, binary=False):
-            """
-            图片(OpenCV BGR 格式)做灰度化和二值化处理
-            """
-            if gray:
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                if binary:
-                    # 自适应二值化
-                    img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
-                    # 消除二值图像孤立点
-                    img = Game.Image.remove_small_objects(img, 10)
-            return img
+    @staticmethod
+    def read(path, gray=False, binary=False):
+        """
+        读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
+        """
+        if gray:
+            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            if binary:
+                # 自适应二值化
+                img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
+                # 消除二值图像孤立点
+                img = Image.remove_small_objects(img, 10)
+        else:
+            img = cv2.imread(path)
+        return img
 
-        @staticmethod
-        def read(path, gray=False, binary=False):
-            """
-            读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
-            """
-            if gray:
-                img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-                if binary:
-                    # 自适应二值化
-                    img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
-                    # 消除二值图像孤立点
-                    img = Game.Image.remove_small_objects(img, 10)
-            else:
-                img = cv2.imread(path)
-            return img
+    @staticmethod
+    def load(directory, gray=False, binary=False):
+        """
+        递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
+        :param directory: 目录
+        :param gray: 图片是否灰做度化处理
+        :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
+        :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+        """
+        imgs = []
+        for item in os.listdir(directory):
+            # item, 不包含路径前缀
+            # path, 完整路径
+            path = os.path.join(directory, item)
+            if os.path.isdir(path):
+                temp = Image.load(path, gray, binary)
+                imgs.extend(temp)
+            elif os.path.isfile(path):
+                name = os.path.splitext(item)[0]
+                img = Image.read(path, gray, binary)
+                imgs.append((name, img))
+        return imgs if imgs else None
 
-        @staticmethod
-        def load(directory, gray=False, binary=False):
-            """
-            递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
-            :param directory: 目录
-            :param gray: 图片是否灰做度化处理
-            :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
-            :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
-            """
-            imgs = []
-            for item in os.listdir(directory):
-                # item, 不包含路径前缀
-                # path, 完整路径
-                path = os.path.join(directory, item)
-                if os.path.isdir(path):
-                    temp = Game.Image.load(path, gray, binary)
-                    imgs.extend(temp)
-                elif os.path.isfile(path):
-                    name = os.path.splitext(item)[0]
-                    img = Game.Image.read(path, gray, binary)
-                    imgs.append((name, img))
-            return imgs if imgs else None
-
-        @staticmethod
-        def similarity(img1, img2, gray=False, binary=False, block=10):
-            """
-            两张相同宽高和通道数的 OpenCV BGR 格式图片
-            或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
-            简单求的相似度(图片需经过灰度化与二值化处理)
-            :param img1: 图片1
-            :param img2: 图片2
-            :param gray: 图片是否灰做度化处理
-            :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
-            :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
-            :param block: 分块对比的块边长, 从1开始, 边长越大精度越低
-            """
-            if img1.shape != img2.shape:
-                return 0
-            img1 = Game.Image.convert(img1, gray, binary)
-            img2 = Game.Image.convert(img2, gray, binary)
-            # cv2.imwrite('1.jpg', img1)
-            # cv2.imwrite('2.jpg', img2)
-            # 遍历图片, 计算同一位置相同色占总色数的比例
-            height, width = img1.shape  # 经过处理后, 通道数只剩1个了
-            # 相似度列表
-            similarities = []
-            # 根据给定的block大小计算分割的行列数, 将图片分为row行col列个格子(注意最后一行和最后一列的格子不一定是block大小)
-            row = 1 if block >= height else (height // block + (0 if height % block == 0 else 1))
-            col = 1 if block >= width else (width // block + (0 if width % block == 0 else 1))
-            # print(f'图片宽度:{width},高度:{height}, 以块边长:{block}, 分为{row}行{col}列')
-            for i in range(0, row):
-                for j in range(0, col):
-                    # print('-')
-                    # 计算当前格子的w和h
-                    w = block if j + 1 < col else (width - (col - 1) * block)
-                    h = block if i + 1 < row else (height - (row - 1) * block)
-                    # print(f'当前遍历第{i + 1}行第{j + 1}列的块, 该块的宽度:{w},高度:{h}, 即该块有{h}行{w}列')
-                    counter = 0
-                    for x in range(block * i, block * i + h):
-                        for y in range(block * j, block * j + w):
-                            # print(f'x:{x},y:{y}')
-                            if img1[x][y] == img2[x][y]:
-                                counter += 1
-                    similarity = counter / (w * h)
-                    # print(f'当前块的相似度是:{similarity}')
-                    similarities.append(similarity ** 3)
-            # print(similarities)
-            return sum(similarities) / len(similarities)
+    @staticmethod
+    def similarity(img1, img2, gray=False, binary=False, block=10):
+        """
+        两张相同宽高和通道数的 OpenCV BGR 格式图片
+        或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
+        简单求的相似度(图片需经过灰度化与二值化处理)
+        :param img1: 图片1
+        :param img2: 图片2
+        :param gray: 图片是否灰做度化处理
+        :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
+        :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+        :param block: 分块对比的块边长, 从1开始, 边长越大精度越低
+        """
+        if img1.shape != img2.shape:
+            return 0
+        img1 = Image.convert(img1, gray, binary)
+        img2 = Image.convert(img2, gray, binary)
+        # cv2.imwrite('1.jpg', img1)
+        # cv2.imwrite('2.jpg', img2)
+        # 遍历图片, 计算同一位置相同色占总色数的比例
+        height, width = img1.shape  # 经过处理后, 通道数只剩1个了
+        # 相似度列表
+        similarities = []
+        # 根据给定的block大小计算分割的行列数, 将图片分为row行col列个格子(注意最后一行和最后一列的格子不一定是block大小)
+        row = 1 if block >= height else (height // block + (0 if height % block == 0 else 1))
+        col = 1 if block >= width else (width // block + (0 if width % block == 0 else 1))
+        # print(f'图片宽度:{width},高度:{height}, 以块边长:{block}, 分为{row}行{col}列')
+        for i in range(0, row):
+            for j in range(0, col):
+                # print('-')
+                # 计算当前格子的w和h
+                w = block if j + 1 < col else (width - (col - 1) * block)
+                h = block if i + 1 < row else (height - (row - 1) * block)
+                # print(f'当前遍历第{i + 1}行第{j + 1}列的块, 该块的宽度:{w},高度:{h}, 即该块有{h}行{w}列')
+                counter = 0
+                for x in range(block * i, block * i + h):
+                    for y in range(block * j, block * j + w):
+                        # print(f'x:{x},y:{y}')
+                        if img1[x][y] == img2[x][y]:
+                            counter += 1
+                similarity = counter / (w * h)
+                # print(f'当前块的相似度是:{similarity}')
+                similarities.append(similarity ** 3)
+        # print(similarities)
+        return sum(similarities) / len(similarities)
 
 
+import cfg
 
+
+class Pubg:
+
+    def __init__(self):
+        w, h = Monitor.resolution()
+        self.key = f'{w}.{h}'  # 分辨率键
+        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True)
+        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon.attachment/sight/1', gray=True, binary=True)
+        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon.attachment/sight/2', gray=True, binary=True)
+        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon.attachment/muzzle', gray=True, binary=True)
+        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon.attachment/foregrip', gray=True, binary=True)
+        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon.attachment/stock', gray=True, binary=True)
+
+    def game(self):
+        """
+        是否游戏窗体在最前
+        """
+        return '绝地求生' in GetWindowText(GetForegroundWindow())
+
+    def backpack(self):
+        """
+        是否在背包界面
+        """
+        region = cfg.detect.get(self.key).get(cfg.backpack)
+        img = Capturer.grab(win=True, region=region, convert=True)
+        img = Image.convert(img, gray=True, binary=True)
+        return Image.similarity(self.std_img_backpack, img) > 0.9
 
 
