@@ -347,7 +347,7 @@ class Pubg:
         """
         翻译武器和配件名称
         """
-        if not weapon or isinstance(weapon, Weapon):
+        if not weapon or not isinstance(weapon, Weapon):
             return None
         name = cfg.translation.get(weapon.name)
         sight = cfg.translation.get(weapon.sight)
@@ -363,8 +363,6 @@ class Pubg:
             string += f', {foregrip}'
         if stock:
             string += f', {stock}'
-        if not sight and not muzzle and not foregrip and not stock:
-            string += f', 裸枪'
         return string
 
     """
