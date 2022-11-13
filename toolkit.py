@@ -354,7 +354,7 @@ class Pubg:
         muzzle = cfg.translation.get(weapon.muzzle)
         foregrip = cfg.translation.get(weapon.foregrip)
         stock = cfg.translation.get(weapon.stock)
-        string = name
+        string = f'[{name}]'
         if sight:
             string += f', {sight}'
         if muzzle:
