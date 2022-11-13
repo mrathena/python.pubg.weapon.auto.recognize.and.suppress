@@ -18,9 +18,7 @@ def mouse():
         elif button == pynput.mouse.Button.x1:
             if pressed:
                 t1 = time.perf_counter_ns()
-                print(pubg.backpack())
-                t2 = time.perf_counter_ns()
-                print(f'耗时:{Timer.cost(t2 - t1)}')
+                print(f'{pubg.backpack()}, 耗时:{Timer.cost(time.perf_counter_ns() - t1)}')
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()
