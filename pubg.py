@@ -60,7 +60,7 @@ def keyboard(data):
             # 1: 背包检测中
             # 2: 武器识别中
             # 3: 等待关闭背包
-            if data[tab] == 0:  # 想要打开背包
+            if data[tab] == 0:  # 等待打开背包
                 data[tab] = 1
             elif data[tab] == 1:  # 背包检测中, 中止检测, 恢复默认状态(循环中会有状态机式的状态感知)
                 data[tab] = 0
