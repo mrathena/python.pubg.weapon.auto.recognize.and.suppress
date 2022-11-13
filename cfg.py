@@ -31,12 +31,11 @@ positive = 'positive'  # 肯定的
 negative = 'negative'  # 否定的
 backpack = 'backpack'
 foregrip = 'foregrip'
-inventory = 'inventory'
 
 # 检测数据
 detect = {
     "3440.1440": {
-        inventory: (936, 78, 80, 40),  # 检测背包是否打开的位置
+        backpack: (936, 78, 80, 40),  # 检测背包是否打开的位置
         weapon: {
             region: (2212, 125, 632, 577),  # 一二号武器全截图
             one: {

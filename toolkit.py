@@ -302,7 +302,7 @@ class Pubg:
     def __init__(self):
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
-        self.std_img_inventory = Image.read(rf'image/{self.key}/inventory.png', gray=True, binary=True)
+        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True)
         self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon.attachment/sight/1', gray=True, binary=True)
         self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon.attachment/sight/2', gray=True, binary=True)
         self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon.attachment/muzzle', gray=True, binary=True)
@@ -320,10 +320,10 @@ class Pubg:
         """
         是否在背包界面
         """
-        region = cfg.detect.get(self.key).get(cfg.inventory)
+        region = cfg.detect.get(self.key).get(cfg.backpack)
         img = Capturer.grab(win=True, region=region, convert=True)
         img = Image.convert(img, gray=True, binary=True)
-        return Image.similarity(self.std_img_inventory, img) > 0.9
+        return Image.similarity(self.std_img_backpack, img) > 0.9
 
     def weapon(self):
         """
