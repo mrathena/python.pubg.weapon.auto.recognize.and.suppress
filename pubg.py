@@ -18,7 +18,7 @@ recognize = 'recognize'
 init = {
     end: False,  # 退出标记
     switch: False,  # 压枪开关
-    tab: 0,  # 识别标记
+    tab: 0,  # 背包检测与武器识别的状态
     weapon1: None,  # 背包中的一号武器
     weapon2: None,  # 背包中的二号武器
     weapon: None,  # 当前持有的主武器
@@ -55,7 +55,7 @@ def keyboard(data):
             data[end] = True
             return False
         elif key == pynput.keyboard.Key.tab:
-            # tab:
+            # tab: 背包检测与武器识别的状态
             # 0: 默认状态
             # 1: 背包检测中
             # 2: 武器识别中
@@ -86,29 +86,33 @@ def suppress(data):
         if data.get(end):
             break
         if not data.get(switch):
-            data[tab] = 0
+            data[tab] = 0  # 开关关闭时, 每次循环都会重置检测状态
             continue
         if not pubg.game():
             continue
         if data[tab] == 1:
+            # 异常状态检测并自动重置检测状态
             counter += 1
             if counter >= 10:  # 举例: 开着背包的时候, 启动辅助并打开开关, 按Tab键关闭背包, 触发辅助更新为状态1, 因为背包已关闭不可能判定是在背包界面, 导致卡状态1
                 data[tab] = 0
                 counter = 0
+            # 背包检测
             if pubg.backpack() and data[tab] == 1:
                 data[tab] = 2
                 counter = 0
                 continue
         if data[tab] == 2:
+            # 异常状态检测并自动重置检测状态
             counter += 1
             if counter >= 10:
                 data[tab] = 0
                 counter = 0
+            # 武器识别
             first, second = pubg.weapon()
             if data[tab] == 2:
                 data[tab] = 3
                 counter = 0
-                winsound.Beep(600, 200)
+                winsound.Beep(600, 200)  # 通知武器识别结束
                 data[weapon1] = first
                 data[weapon2] = second
                 print('----------')
