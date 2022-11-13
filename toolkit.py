@@ -342,6 +342,35 @@ class Pubg:
     ---------- ---------- ---------- ---------- ----------
     """
 
+    @staticmethod
+    def translate(weapon):
+        """
+        翻译武器和配件名称
+        """
+        if not weapon or isinstance(weapon, Weapon):
+            return None
+        name = cfg.translation.get(weapon.name)
+        sight = cfg.translation.get(weapon.sight)
+        muzzle = cfg.translation.get(weapon.muzzle)
+        foregrip = cfg.translation.get(weapon.foregrip)
+        stock = cfg.translation.get(weapon.stock)
+        string = name
+        if sight:
+            string += f', {sight}'
+        if muzzle:
+            string += f', {muzzle}'
+        if foregrip:
+            string += f', {foregrip}'
+        if stock:
+            string += f', {stock}'
+        if not sight and not muzzle and not foregrip and not stock:
+            string += f', 裸枪'
+        return string
+
+    """
+    ---------- ---------- ---------- ---------- ----------
+    """
+
     def name(self, img):
         """
         识别武器名称, 入参图片需为 OpenCV 格式

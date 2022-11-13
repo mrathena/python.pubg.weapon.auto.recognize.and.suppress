@@ -4,12 +4,10 @@ mode = 'mode'
 name = 'name'
 game = 'game'
 data = 'data'
-pack = 'pack'
 sight = 'sight'
 color = 'color'
 point = 'point'
 index = 'index'
-shake = 'shake'
 speed = 'speed'
 count = 'count'
 armed = 'armed'
@@ -19,16 +17,8 @@ stock = 'stock'
 weapon = 'weapon'
 region = 'region'
 muzzle = 'muzzle'
-letter = 'letter'
 switch = 'switch'
 bullet = 'bullet'  # 子弹
-differ = 'differ'
-turbo = 'turbo'
-trigger = 'trigger'
-restrain = 'restrain'
-strength = 'strength'
-positive = 'positive'  # 肯定的
-negative = 'negative'  # 否定的
 backpack = 'backpack'
 foregrip = 'foregrip'
 
@@ -107,6 +97,7 @@ detect = {
                 843: 'Spotter Scope',
                 947: 'Tactical Pack',
             },
+
         },
 
         mode: {  # 武器模式, 全自动/半自动/单发/其他
@@ -132,6 +123,90 @@ detect = {
     "1920.1080": {
 
     }
+}
+
+# 翻译数据
+translation = {
+    'ACE32': 'ACE32',
+    'AKM': 'AKM',
+    'AUG': 'AUG',
+    'Beryl M762': 'Beryl M762',
+    'G36C': 'G36C',
+    'Groza': 'Groza',
+    'K2': 'K2',
+    'M16A4': 'M16A4',
+    'M416': 'M416',
+    'Mk47 Mutant': 'Mk47 Mutant',
+    'QBZ': 'QBZ',
+    'SCAR-L': 'SCAR-L',
+    'Mini14': 'Mini14',
+    'Mk12': 'Mk12',
+    'Mk14': 'Mk14',
+    'QBU': 'QBU',
+    'SKS': 'SKS',
+    'SLR': '自动装填步枪',
+    'VSS': 'VSS',
+    'Crossbow': '十字弩',
+    'DP-28': 'DP-28',
+    'M249 ': 'M249 ',
+    'MG3': 'MG3',
+    'Mortar': '迫击炮',
+    'Panzerfaust': '铁拳火箭筒',
+    'DBS': 'DBS',
+    'O12': 'O12',
+    'S12K': 'S12K',
+    'S1897': 'S1897',
+    'S686': 'S686',
+    'AWM': 'AWM',
+    'Kar98k': 'Kar98k',
+    'Lynx AMR': 'Lynx AMR',
+    'M24': 'M24',
+    'Mosin Nagant': '莫辛纳甘步枪',
+    'Win94': 'Win94',
+    'Micro UZI': '微型 UZI',
+    'MP5K': 'MP5K',
+    'MP9': 'MP9',
+    'P90': 'P90',
+    'PP-19 Bizon': 'PP-19 Bizon',
+    'Tommy Gun': '汤姆逊冲锋枪',
+    'UMP45': 'UMP45',
+    'Vector': 'Vector',
+    'Blue Chip Detector': '蓝色晶片探测器',
+    'Drone Tablet': '无人机控制器',
+    'EMT Gear': '应急处理装备',
+    'Spotter Scope': '观测镜',
+    'Tactical Pack': '战术背包',
+    'Angled Foregrip': '直角前握把',
+    'Haalfgrip': '半截式握把',
+    'Laser Sight': '激光瞄准器',
+    'Lightweight Grip': '轻型握把',
+    'Quiver': '箭袋',
+    'Thumbgrip': '拇指握把',
+    'Vertical Foregrip': '垂直握把',
+    'Choke SG': '扼流圈',
+    'Compensator AR': '枪口补偿器',
+    'Compensator SR': '枪口补偿器',
+    'Compenstor SMG': '枪口补偿器',
+    'Duckbill SG': '鸭嘴枪口',
+    'Flash Hider AR': '消焰器',
+    'Flash Hider SMG': '消焰器',
+    'Flash Hider SR': '消焰器',
+    'Suppressor AR': '消音器',
+    'Suppressor SMG': '消音器',
+    'Suppressor SR': '消音器',
+    '15x Scope': '15x镜',
+    '2x Scope': '2x镜',
+    '3x Scope': '3x镜',
+    '4x Scope': '4x镜',
+    '6x Scope': '6x镜',
+    '8x Scope': '8x镜',
+    'Holographic Sight': '全息',
+    'Red Dot Sight': '红点',
+    'Bullet Loops': '子弹袋',
+    'Cheek Pad': '托腮板',
+    'Folding Stock': '折叠式枪托',
+    'Heavy Stock': '重型枪托',
+    'Tactical Stock': '战术枪托',
 }
 
 # 武器数据

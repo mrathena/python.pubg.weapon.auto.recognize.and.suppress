@@ -1,5 +1,4 @@
 
-
 class Weapon:
 
     def __init__(self, name, sight, muzzle, foregrip, stock):
