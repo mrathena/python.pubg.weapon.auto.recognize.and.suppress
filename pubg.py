@@ -79,6 +79,8 @@ def suppress(data):
     pubg = Pubg()
     winsound.Beep(800, 200)
 
+    counter = 0  # 检测计数器, 防止因不正常状态导致检测卡入死循环, 至多卡10个循环就会强制退出
+
     while True:
 
         if data.get(end):
@@ -89,13 +91,23 @@ def suppress(data):
         if not pubg.game():
             continue
         if data[tab] == 1:
+            counter += 1
+            if counter >= 10:
+                data[tab] = 0
+                counter = 0
             if pubg.backpack() and data[tab] == 1:
                 data[tab] = 2
+                counter = 0
                 continue
         if data[tab] == 2:
+            counter += 1
+            if counter >= 10:
+                data[tab] = 0
+                counter = 0
             first, second = pubg.weapon()
             if data[tab] == 2:
                 data[tab] = 3
+                counter = 0
                 winsound.Beep(600, 200)
                 data[weapon1] = first
                 data[weapon2] = second
