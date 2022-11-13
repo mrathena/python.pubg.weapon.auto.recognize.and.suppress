@@ -124,7 +124,7 @@ def recognize_attachment(imgs, img):
     img = Game.Image.convert(img, gray=True, binary=True)
     for name, standard in imgs:
         similarity = Game.Image.similarity(standard, img)
-        print(similarity, name)
+        # print(similarity, name)
         if similarity > 0.925:
             return name
     return None
