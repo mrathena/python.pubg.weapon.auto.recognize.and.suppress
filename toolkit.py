@@ -169,6 +169,14 @@ class Timer:
 class Image:
 
     @staticmethod
+    def cut(img, region):
+        """
+        从 img 中截取 region 范围. 入参图片需为 OpenCV 格式
+        """
+        left, top, width, height = region
+        return img[top:top + height, left:left + width]
+
+    @staticmethod
     def remove_small_objects(img, threshold):
         """
         消除二值图像中面积小于某个阈值的连通域(消除孤立点)
@@ -286,6 +294,7 @@ class Image:
 
 
 import cfg
+from structure import Weapon
 
 
 class Pubg:
@@ -293,12 +302,13 @@ class Pubg:
     def __init__(self):
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
-        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True)
+        self.std_img_inventory = Image.read(rf'image/{self.key}/inventory.png', gray=True, binary=True)
         self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon.attachment/sight/1', gray=True, binary=True)
         self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon.attachment/sight/2', gray=True, binary=True)
         self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon.attachment/muzzle', gray=True, binary=True)
         self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon.attachment/foregrip', gray=True, binary=True)
         self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon.attachment/stock', gray=True, binary=True)
+        self.std_names = cfg.detect.get(self.key).get(cfg.weapon).get(cfg.name)
 
     def game(self):
         """
@@ -310,9 +320,91 @@ class Pubg:
         """
         是否在背包界面
         """
-        region = cfg.detect.get(self.key).get(cfg.backpack)
+        region = cfg.detect.get(self.key).get(cfg.inventory)
         img = Capturer.grab(win=True, region=region, convert=True)
         img = Image.convert(img, gray=True, binary=True)
-        return Image.similarity(self.std_img_backpack, img) > 0.9
+        return Image.similarity(self.std_img_inventory, img) > 0.9
+
+    def weapon(self):
+        """
+        在背包库存界面识别两把主武器及其配件
+        """
+        data = cfg.detect.get(self.key).get(cfg.weapon)
+        region = data.get(cfg.region)
+        # 截图主武器部分
+        img = Capturer.grab(win=True, region=region, convert=True)
+        # 识别两把主武器武器
+        weapon1 = self.recognize(img, data.get(cfg.one))
+        weapon2 = self.recognize(img, data.get(cfg.two))
+        return weapon1, weapon2
+
+    """
+    ---------- ---------- ---------- ---------- ----------
+    """
+
+    def name(self, img):
+        """
+        识别武器名称, 入参图片需为 OpenCV 格式
+        """
+        # 截图灰度化
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 截图二值化
+        ret, img = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY)
+        # 数纯白色点
+        height, width = img.shape
+        counter = 0
+        for row in range(0, height):
+            for col in range(0, width):
+                if 255 == img[row, col]:
+                    counter += 1
+        return self.std_names.get(counter)
+
+    def attachment(self, imgs, img):
+        """
+        识别武器配件, 入参图片需为 OpenCV 格式
+        """
+        img = Image.convert(img, gray=True, binary=True)
+        for name, standard in imgs:
+            similarity = Image.similarity(standard, img)
+            # print(similarity, name)
+            if similarity > 0.925:
+                return name
+        return None
+
+    def recognize(self, img, config):
+        """
+        传入武器大图和识别名称配件的配置项, 返回识别到的武器. 入参图片需为 OpenCV 格式
+        """
+        # 判断武器是否存在
+        exist = np.mean(img[config.get(cfg.point)]) == 255  # 取 BGR 列表的均值, 判断是不是纯白色
+        if not exist:
+            return None
+        # 武器存在, 先识别名称
+        name = self.name(Image.cut(img, config.get(cfg.name)))
+        if not name:
+            return None
+        # 识别出武器名称后再识别配件
+        index = config.get(cfg.index)
+        sight = self.attachment(self.std_imgs_sight_1 if index == 1 else self.std_imgs_sight_2, Image.cut(img, config.get(cfg.sight)))
+        muzzle = self.attachment(self.std_imgs_muzzle, Image.cut(img, config.get(cfg.muzzle)))
+        foregrip = self.attachment(self.std_imgs_foregrip, Image.cut(img, config.get(cfg.foregrip)))
+        stock = self.attachment(self.std_imgs_stock, Image.cut(img, config.get(cfg.stock)))
+        return Weapon(name, sight, muzzle, foregrip, stock)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

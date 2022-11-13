@@ -18,7 +18,12 @@ def mouse():
         elif button == pynput.mouse.Button.x1:
             if pressed:
                 t1 = time.perf_counter_ns()
-                print(f'{pubg.backpack()}, 耗时:{Timer.cost(time.perf_counter_ns() - t1)}')
+                weapon1, weapon2 = pubg.weapon()
+                print(f'武器一: {weapon1}')
+                print(f'武器二: {weapon2}')
+                print(f'耗时:{Timer.cost(time.perf_counter_ns() - t1)}')
+
+                winsound.Beep(800, 200)
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()

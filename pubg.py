@@ -1,11 +1,10 @@
 import multiprocessing
-import time
 from multiprocessing import Process
 
 import pynput  # pip install pynput
 import winsound
 
-from toolkit import Game
+from toolkit import Pubg
 
 end = 'end'
 fire = 'fire'
@@ -17,8 +16,8 @@ restart = 'restart'
 restrain = 'restrain'
 strength = 'strength'
 init = {
-    end: False,  # 退出标记, End 键按下后改为 True, 其他进程线程在感知到变更后结束自身
-    switch: True,  # 检测和压枪开关
+    end: False,  # 退出标记
+    switch: True,  # 压枪开关
     fire: False,  # 开火状态
     shake: None,  # 抖枪参数
     restrain: None,  # 压枪参数
@@ -61,7 +60,6 @@ def suppress(data):
             break
         if data.get(switch) is False:
             continue
-
 
 
 if __name__ == '__main__':
