@@ -92,7 +92,7 @@ def suppress(data):
             continue
         if data[tab] == 1:
             counter += 1
-            if counter >= 10:
+            if counter >= 10:  # 举例: 开着背包的时候, 启动辅助并打开开关, 按Tab键关闭背包, 触发辅助更新为状态1, 因为背包已关闭不可能判定是在背包界面, 导致卡状态1
                 data[tab] = 0
                 counter = 0
             if pubg.backpack() and data[tab] == 1:
