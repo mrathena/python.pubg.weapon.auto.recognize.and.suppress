@@ -116,8 +116,8 @@ def suppress(data):
                 data[weapon1] = first
                 data[weapon2] = second
                 print('----------')
-                print(pubg.translate(first))
-                print(pubg.translate(second))
+                print(first)
+                print(second)
                 continue
         # todo
 
