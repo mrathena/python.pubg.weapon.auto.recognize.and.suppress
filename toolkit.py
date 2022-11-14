@@ -171,6 +171,24 @@ class Timer:
 class Image:
 
     @staticmethod
+    def gray(img):
+        """
+        灰度化
+        :param img: OpenCV BGR
+        """
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    @staticmethod
+    def binary(img, threshold=None):
+        """
+        全局二值化
+        :param img: 灰度图
+        :param threshold: 二值化阈值, 大于该值的转为白色, 其他值转为黑色
+        """
+        _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+        return img
+
+    @staticmethod
     def cut(img, region):
         """
         从 img 中截取 region 范围. 入参图片需为 OpenCV 格式
