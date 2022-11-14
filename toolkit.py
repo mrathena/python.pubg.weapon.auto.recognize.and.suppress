@@ -370,7 +370,6 @@ class Pubg:
         counter = 0
         points = data.get(cfg.prone)
         for point in points:
-            print(point, img[point])
             if img[point] == 0:
                 counter += 1
         if counter == len(points):
