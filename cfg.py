@@ -1,8 +1,11 @@
 one = 'one'
 two = 'two'
-mode = 'mode'
-name = 'name'
 game = 'game'
+mode = 'mode'
+only = 'only'
+semi = 'semi'
+auto = 'auto'
+name = 'name'
 data = 'data'
 sight = 'sight'
 color = 'color'
@@ -18,6 +21,7 @@ squat = 'squat'
 prone = 'prone'
 weapon = 'weapon'
 region = 'region'
+points = 'points'
 muzzle = 'muzzle'
 switch = 'switch'
 bullet = 'bullet'  # 子弹
@@ -108,19 +112,12 @@ detect = {
             prone: [(33, 48), (34, 60), (39, 25), (41, 18)],
         },
         bullet: (1712, 1324),  # 纯红色则没有子弹
-
-        mode: {  # 武器模式, 全自动/半自动/单发/其他
-            color: 0x00FFFFFF,
-            '1': (3151, 1347),  # 全自动
-            '2': (3171, 1351),  # 半自动
+        mode: {  # 武器模式识别
+            region: (1649, 1331, 27, 31),
+            points: [(3, 13), (8, 13), (14, 13), (19, 13)]
         },
         armed: {  # 是否持有武器(比如有武器但用拳头就是未持有武器)
 
-        },
-        empty: {  # 是否空弹夹(武器里子弹数为0)
-            color: 0x00FFFFFF,
-            '1': (3204, 1306),  # 十位数, 该点白色即非0, 非0则一定不空
-            '2': (3229, 1294),  # 个位数, 该点白色即为0, 十位为0且个位为0为空
         },
     },
     "2560.1440": {

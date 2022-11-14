@@ -194,7 +194,7 @@ class Image:
         return 255 - resMatrix  # 本来输出的是黑底百图, 这里特意转换了黑白
 
     @staticmethod
-    def convert(img, gray=False, binary=False, remove=True, threshold=10):
+    def convert(img, gray=False, binary=False, remove=False, threshold=10):
         """
         图片(OpenCV BGR 格式)做灰度化和二值化处理
         """
@@ -209,46 +209,33 @@ class Image:
         return img
 
     @staticmethod
-    def read(path, gray=False, binary=False):
+    def read(path, gray=False, binary=False, remove=False, threshold=10):
         """
         读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
         """
-        if gray:
-            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-            if binary:
-                # 自适应二值化
-                img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
-                # 消除二值图像孤立点
-                img = Image.remove_small_objects(img, 10)
-        else:
-            img = cv2.imread(path)
+        img = cv2.imread(path)
+        img = Image.convert(img, gray=gray, binary=binary, remove=remove, threshold=threshold)
         return img
 
     @staticmethod
-    def load(directory, gray=False, binary=False):
+    def load(directory, gray=False, binary=False, remove=False, threshold=10):
         """
         递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
-        :param directory: 目录
-        :param gray: 图片是否灰做度化处理
-        :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
-        :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
         """
         imgs = []
         for item in os.listdir(directory):
-            # item, 不包含路径前缀
-            # path, 完整路径
             path = os.path.join(directory, item)
             if os.path.isdir(path):
-                temp = Image.load(path, gray, binary)
+                temp = Image.load(path, gray, binary, remove, threshold)
                 imgs.extend(temp)
             elif os.path.isfile(path):
                 name = os.path.splitext(item)[0]
-                img = Image.read(path, gray, binary)
+                img = Image.read(path, gray, binary, remove, threshold)
                 imgs.append((name, img))
         return imgs if imgs else None
 
     @staticmethod
-    def similarity(img1, img2, gray=False, binary=False, block=10):
+    def similarity(img1, img2, gray=False, binary=False, remove=False, threshold=10, block=10):
         """
         两张相同宽高和通道数的 OpenCV BGR 格式图片
         或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
@@ -257,13 +244,14 @@ class Image:
         :param img2: 图片2
         :param gray: 图片是否灰做度化处理
         :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
-        :param threshold: 二值化阈值, 灰度图中, 大于该值的被赋值255, 小于等于该值的赋值0
+        :param remove: 是否消除二值图像中的孤立点
+        :param threshold: 消除二值图像中的孤立点的面积阈值
         :param block: 分块对比的块边长, 从1开始, 边长越大精度越低
         """
         if img1.shape != img2.shape:
             return 0
-        img1 = Image.convert(img1, gray, binary)
-        img2 = Image.convert(img2, gray, binary)
+        img1 = Image.convert(img1, gray, binary, remove, threshold)
+        img2 = Image.convert(img2, gray, binary, remove, threshold)
         # cv2.imwrite('1.jpg', img1)
         # cv2.imwrite('2.jpg', img2)
         # 遍历图片, 计算同一位置相同色占总色数的比例
@@ -303,12 +291,12 @@ class Pubg:
     def __init__(self):
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
-        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True)
-        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon/attachment/sight/1', gray=True, binary=True)
-        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon/attachment/sight/2', gray=True, binary=True)
-        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon/attachment/muzzle', gray=True, binary=True)
-        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=True)
-        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=True)
+        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True, remove=True)
+        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon/attachment/sight/1', gray=True, binary=True, remove=True)
+        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon/attachment/sight/2', gray=True, binary=True, remove=True)
+        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon/attachment/muzzle', gray=True, binary=True, remove=True)
+        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=True, remove=True)
+        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=True, remove=True)
         self.std_names = cfg.detect.get(self.key).get(cfg.weapon).get(cfg.name)
 
     def game(self):
@@ -323,7 +311,7 @@ class Pubg:
         """
         region = cfg.detect.get(self.key).get(cfg.backpack)
         img = Capturer.grab(win=True, region=region, convert=True)
-        img = Image.convert(img, gray=True, binary=True)
+        img = Image.convert(img, gray=True, binary=True, remove=True)
         return Image.similarity(self.std_img_backpack, img) > 0.9
 
     def weapon(self):
@@ -393,11 +381,32 @@ class Pubg:
         # 不是3种姿态
         return None
 
-
-
-
-
-
+    def mode(self):
+        """
+        射击模式识别, 只限突击步枪和冲锋枪
+        """
+        data = cfg.detect.get(self.key).get(cfg.mode)
+        region = data.get(cfg.region)
+        # 截图模式部分
+        img = Capturer.grab(win=True, region=region, convert=True)
+        # 灰度化
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 二值化
+        _, img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
+        # 判断射击模式
+        counter = 0
+        points = data.get(cfg.points)
+        for point in points:
+            if img[point] == 0:
+                counter += 1
+        if counter == 1:
+            return cfg.only
+        elif counter == 2 or counter == 3:
+            return cfg.semi
+        elif counter == 4:
+            return cfg.auto
+        # 非四种射击模式
+        return None
 
 
     """
@@ -425,7 +434,7 @@ class Pubg:
         """
         识别武器配件, 入参图片需为 OpenCV 格式
         """
-        img = Image.convert(img, gray=True, binary=True)
+        img = Image.convert(img, gray=True, binary=True, remove=True)
         for name, standard in imgs:
             similarity = Image.similarity(standard, img)
             # print(similarity, name)
