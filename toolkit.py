@@ -423,7 +423,7 @@ class Pubg:
         # 截图姿态部分
         img = Capturer.grab(win=True, region=region, convert=True)
         # 灰度化二值化
-        img = Image.convert(img, gray=True, binary=True, remove=False)
+        img = Image.convert(img, gray=True, binary=self.binary)
         # cv2.imwrite('1.jpg', img)
         # 判断是否是站立
         counter = 0
@@ -461,9 +461,9 @@ class Pubg:
         # 截图模式部分
         img = Capturer.grab(win=True, region=region, convert=True)
         # 灰度化
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = Image.gray(img)
         # 二值化
-        _, img = cv2.threshold(img, 230, 255, cv2.THRESH_BINARY)
+        img = Image.binary(img, threshold=230)
         # cv2.imwrite(f'{int(time.perf_counter_ns())}.jpg', img)
         # 判断射击模式
         counter = 0
