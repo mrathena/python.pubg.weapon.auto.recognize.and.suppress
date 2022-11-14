@@ -1,7 +1,13 @@
 
-from toolkit import Image
+data = {
+    'a': 1,
+}
 
-ret = Image.load(rf'image/3440.1440/weapon.attachment')
-for name, img in ret:
-    print(f"'{name}': '{name}',")
+print(data.get('a'))
+print(data.get('a', 2))
+print(data.get('b', 3))
+print(data.get(None, 4))
+print(data.get(None))
+print(data)
+
 

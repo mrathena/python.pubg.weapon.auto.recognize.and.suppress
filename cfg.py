@@ -28,6 +28,8 @@ bullet = 'bullet'  # 子弹
 backpack = 'backpack'
 foregrip = 'foregrip'
 attitude = 'attitude'
+interval = 'interval'
+ballistic = 'ballistic'
 
 # 检测数据
 detect = {
@@ -215,7 +217,42 @@ translation = {
     'Tactical Stock': '战术枪托',
 }
 
-# 武器数据
-data = {
+# 武器数据, 在列表中的武器才会执行压制
+weapons = {
+    'M416': {
+        mode: True,  # 支持射击模式检测
+        interval: 86,  # 全自动射击间隔
+        attitude: {  # 姿态影响因子
+            stand: 1,
+            squat: 0.75,
+            prone: 0.5,
+        },
+        sight: {  # 瞄具影响因子
+            '2x Scope': 1.7,
+            '3x Scope': 2.6,
+            '4x Scope': 3.6,
+            '6x Scope': 5.1,
+            'Holographic Sight': 1,
+            'Red Dot Sight': 1,
+        },
+        muzzle: {  # 枪口影响因子
+            'Compensator AR': 0.84,
+            'Flash Hider AR': 0.84,
+            'Suppressor AR': 1,
+        },
+        foregrip: {  # 握把影响因子
+            'Angled Foregrip': 1,
+            'Haalfgrip': 0.77,
+            'Laser Sight': 1,
+            'Lightweight Grip': 0.77,
+            'Thumbgrip': 0.92,
+            'Vertical Foregrip': 0.77,
+        },
+        stock: {  # 枪托影响因子
+            'Heavy Stock': 0.965,
+            'Tactical Stock': 0.965,
+        },
+        ballistic: [36, 23, 24, 23, 33, 34, 34, 34, 40, 40, 40, 40, 41, 41, 41, 42, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 50, 51, 50, 51],  # 垂直方向弹道
+    },
 
 }

@@ -8,6 +8,7 @@ from toolkit import Pubg
 
 end = 'end'
 tab = 'tab'
+mode = 'mode'
 fire = 'fire'
 index = 'index'
 switch = 'switch'
@@ -22,6 +23,7 @@ init = {
     weapon1: None,  # 背包中的一号武器
     weapon2: None,  # 背包中的二号武器
     weapon: None,  # 当前持有的主武器
+    mode: None,  # 射击模式, auto:全自动, semi:半自动(点射), only:单发
     fire: False,  # 开火状态
 }
 
@@ -68,7 +70,12 @@ def keyboard(data):
                 data[tab] = 0
             elif data[tab] == 3:  # 武器已识别, 等待关闭背包, 恢复默认状态
                 data[tab] = 0
-        # elif key == pynput.keyboard.KeyCode.from_char('1'):
+        elif key == pynput.keyboard.KeyCode.from_char('1'):
+            if data[weapon1]:
+                data[weapon] = data[weapon1]
+        elif key == pynput.keyboard.KeyCode.from_char('2'):
+            if data[weapon2]:
+                data[weapon] = data[weapon2]
 
     with pynput.keyboard.Listener(on_release=release) as k:
         k.join()
