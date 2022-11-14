@@ -7,7 +7,7 @@ from skimage import measure  # pip install scikit-image
 
 from win32api import GetSystemMetrics  # conda install pywin32
 from win32con import SRCCOPY, SM_CXSCREEN, SM_CYSCREEN
-from win32gui import GetDesktopWindow, GetWindowDC, DeleteObject, ReleaseDC, GetWindowText, GetForegroundWindow
+from win32gui import GetDesktopWindow, GetWindowDC, DeleteObject, GetWindowText, GetForegroundWindow, GetDC, ReleaseDC, GetPixel
 from win32ui import CreateDCFromHandle, CreateBitmap
 
 
@@ -338,6 +338,22 @@ class Pubg:
         weapon1 = self.recognize(img, data.get(cfg.one))
         weapon2 = self.recognize(img, data.get(cfg.two))
         return weapon1, weapon2
+
+    def bullet(self):
+        """
+        是否有子弹
+        效率很低且不稳定, 单点检测都要耗时1-10ms
+        获取颜色, COLORREF 格式, 0x00FFFFFF
+        结果是int,
+        可以通过 print(hex(color)) 查看十六进制值
+        可以通过 print(color == 0x00FFFFFF) 进行颜色判断
+        """
+        x, y = cfg.detect.get(self.key).get(cfg.bullet)
+        hdc = GetDC(None)
+        color = GetPixel(hdc, x, y)
+        # print(color)
+        ReleaseDC(None, hdc)
+        return color != 255
 
     def attitude(self):
         """
