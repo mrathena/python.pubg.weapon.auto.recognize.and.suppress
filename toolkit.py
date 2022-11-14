@@ -159,11 +159,11 @@ class Timer:
         if interval < 1000:
             return f'{interval}ns'
         elif interval < 1_000_000:
-            return f'{interval / 1000}us'
+            return f'{round(interval / 1000, 3)}us'
         elif interval < 1_000_000_000:
-            return f'{interval / 1_000_000}ms'
+            return f'{round(interval / 1_000_000, 3)}ms'
         else:
-            return f'{interval / 1_000_000_000}s'
+            return f'{round(interval / 1_000_000_000, 3)}s'
 
 
 class Image:
@@ -194,7 +194,7 @@ class Image:
         return 255 - resMatrix  # 本来输出的是黑底百图, 这里特意转换了黑白
 
     @staticmethod
-    def convert(img, gray=False, binary=False):
+    def convert(img, gray=False, binary=False, remove=True, threshold=10):
         """
         图片(OpenCV BGR 格式)做灰度化和二值化处理
         """
@@ -203,8 +203,9 @@ class Image:
             if binary:
                 # 自适应二值化
                 img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
-                # 消除二值图像孤立点
-                img = Image.remove_small_objects(img, 10)
+                if remove:
+                    # 消除二值图像孤立点
+                    img = Image.remove_small_objects(img, threshold)
         return img
 
     @staticmethod
@@ -303,11 +304,11 @@ class Pubg:
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
         self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True)
-        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon.attachment/sight/1', gray=True, binary=True)
-        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon.attachment/sight/2', gray=True, binary=True)
-        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon.attachment/muzzle', gray=True, binary=True)
-        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon.attachment/foregrip', gray=True, binary=True)
-        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon.attachment/stock', gray=True, binary=True)
+        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon/attachment/sight/1', gray=True, binary=True)
+        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon/attachment/sight/2', gray=True, binary=True)
+        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon/attachment/muzzle', gray=True, binary=True)
+        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=True)
+        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=True)
         self.std_names = cfg.detect.get(self.key).get(cfg.weapon).get(cfg.name)
 
     def game(self):
@@ -337,6 +338,52 @@ class Pubg:
         weapon1 = self.recognize(img, data.get(cfg.one))
         weapon2 = self.recognize(img, data.get(cfg.two))
         return weapon1, weapon2
+
+    def attitude(self):
+        """
+        姿态识别
+        """
+        data = cfg.detect.get(self.key).get(cfg.attitude)
+        region = data.get(cfg.region)
+        # 截图姿态部分
+        img = Capturer.grab(win=True, region=region, convert=True)
+        # 灰度化二值化
+        img = Image.convert(img, gray=True, binary=True, remove=False)
+        # cv2.imwrite('1.jpg', img)
+        # 判断是否是站立
+        counter = 0
+        points = data.get(cfg.stand)
+        for point in points:
+            if img[point] == 0:
+                counter += 1
+        if counter == len(points):
+            return cfg.stand
+        # 判断是否是蹲下
+        counter = 0
+        points = data.get(cfg.squat)
+        for point in points:
+            if img[point] == 0:
+                counter += 1
+        if counter == len(points):
+            return cfg.squat
+        # 判断是否是趴卧
+        counter = 0
+        points = data.get(cfg.prone)
+        for point in points:
+            print(point, img[point])
+            if img[point] == 0:
+                counter += 1
+        if counter == len(points):
+            return cfg.prone
+        # 不是3种姿态
+        return None
+
+
+
+
+
+
+
 
     """
     ---------- ---------- ---------- ---------- ----------

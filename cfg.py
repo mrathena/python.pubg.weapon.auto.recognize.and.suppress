@@ -13,6 +13,9 @@ count = 'count'
 armed = 'armed'
 empty = 'empty'
 stock = 'stock'
+stand = 'stand'
+squat = 'squat'
+prone = 'prone'
 weapon = 'weapon'
 region = 'region'
 muzzle = 'muzzle'
@@ -20,6 +23,7 @@ switch = 'switch'
 bullet = 'bullet'  # 子弹
 backpack = 'backpack'
 foregrip = 'foregrip'
+attitude = 'attitude'
 
 # 检测数据
 detect = {
@@ -96,7 +100,12 @@ detect = {
                 843: 'Spotter Scope',
                 947: 'Tactical Pack',
             },
-
+        },
+        attitude: {
+            region: (1374, 1312, 66, 59),
+            stand: [(37, 33), (37, 28), (17, 28), (20, 17)],  # (y, x), 纯黑色
+            squat: [(19, 39), (20, 51), (36, 13), (41, 28)],
+            prone: [(33, 48), (34, 60), (39, 25), (41, 18)],
         },
 
         mode: {  # 武器模式, 全自动/半自动/单发/其他
