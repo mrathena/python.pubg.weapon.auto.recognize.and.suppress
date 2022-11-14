@@ -1,4 +1,5 @@
 import multiprocessing
+import time
 from multiprocessing import Process
 
 import pynput  # pip install pynput
@@ -11,19 +12,22 @@ tab = 'tab'
 mode = 'mode'
 fire = 'fire'
 index = 'index'
+right = 'right'
 switch = 'switch'
 weapon = 'weapon'
-weapon1 = 'weapon1'
-weapon2 = 'weapon2'
+attitude = 'attitude'
 recognize = 'recognize'
+timestamp = 'timestamp'
 init = {
     end: False,  # 退出标记
     switch: False,  # 压枪开关
-    tab: 0,  # 背包检测与武器识别的状态
-    weapon1: None,  # 背包中的一号武器
-    weapon2: None,  # 背包中的二号武器
-    weapon: None,  # 当前持有的主武器
+    tab: 0,  # Tab键检测, 背包检测与武器识别的状态
+    weapon: None,  # 当前识别出来的主武器, dict
+    index: 0,  # 当前持有的武器, 1:1号武器, 2:2号武器
+    right: 0,  # 右键检测, 包括当前的角色姿态, 当前激活的武器, 武器的射击模式
+    attitude: None,  # 姿态, stand:站, squat:蹲, prone:爬, 开火时检测(开火时要按右键,按右键后会出现姿态标识)
     mode: None,  # 射击模式, auto:全自动, semi:半自动(点射), only:单发
+    timestamp: None,  # 按下左键开火时的时间戳
     fire: False,  # 开火状态
 }
 
@@ -31,18 +35,28 @@ init = {
 def mouse(data):
 
     def down(x, y, button, pressed):
-        if button == pynput.mouse.Button.x1:
-            # 侧下键
-            if pressed:
-                # 压枪开关
-                data[switch] = not data.get(switch)
-                winsound.Beep(800 if data[switch] else 400, 200)
-        elif button == pynput.mouse.Button.left:
-            data[fire] = pressed
-        elif button == pynput.mouse.Button.x2:
-            if data[weapon]:
-                for item in data[weapon]:
-                    print(item)
+        if Pubg.game():
+            if button == pynput.mouse.Button.x1:
+                # 侧下键
+                if pressed:
+                    # 压枪开关
+                    data[switch] = not data.get(switch)
+                    winsound.Beep(800 if data[switch] else 400, 200)
+            elif button == pynput.mouse.Button.left:
+                data[fire] = pressed
+                if pressed:
+                    data[timestamp] = time.perf_counter_ns()
+            elif button == pynput.mouse.Button.right:
+                if pressed:
+                    data[right] = 1  # 非0开始检测
+            elif button == pynput.mouse.Button.x2:
+                # 侧上键
+                if pressed:
+                    print('========== ==========')
+                    if data[weapon]:
+                        for key, value in data[weapon].items():
+                            print(f'{key}: {value}')
+                    print(f'index: {data[index]}, {data[attitude]}, {data[mode]}')
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()
@@ -56,26 +70,27 @@ def keyboard(data):
             winsound.Beep(400, 200)
             data[end] = True
             return False
-        elif key == pynput.keyboard.Key.tab:
-            # tab: 背包检测与武器识别的状态
-            # 0: 默认状态
-            # 1: 背包检测中
-            # 2: 武器识别中
-            # 3: 等待关闭背包
-            if data[tab] == 0:  # 等待打开背包
-                data[tab] = 1
-            elif data[tab] == 1:  # 背包检测中, 中止检测, 恢复默认状态(循环中会有状态机式的状态感知)
-                data[tab] = 0
-            elif data[tab] == 2:  # 武器识别中, 中止识别, 恢复默认状态
-                data[tab] = 0
-            elif data[tab] == 3:  # 武器已识别, 等待关闭背包, 恢复默认状态
-                data[tab] = 0
-        elif key == pynput.keyboard.KeyCode.from_char('1'):
-            if data[weapon1]:
-                data[weapon] = data[weapon1]
-        elif key == pynput.keyboard.KeyCode.from_char('2'):
-            if data[weapon2]:
-                data[weapon] = data[weapon2]
+        if Pubg.game():
+            if key == pynput.keyboard.Key.tab:
+                # tab: 背包检测与武器识别的状态
+                # 0: 默认状态
+                # 1: 背包检测中
+                # 2: 武器识别中
+                # 3: 等待关闭背包
+                if data[tab] == 0:  # 等待打开背包
+                    data[tab] = 1
+                elif data[tab] == 1:  # 背包检测中, 中止检测, 恢复默认状态(循环中会有状态机式的状态感知)
+                    data[tab] = 0
+                elif data[tab] == 2:  # 武器识别中, 中止识别, 恢复默认状态
+                    data[tab] = 0
+                elif data[tab] == 3:  # 武器已识别, 等待关闭背包, 恢复默认状态
+                    data[tab] = 0
+            elif key == pynput.keyboard.KeyCode.from_char('1'):
+                if data[weapon] and data[weapon].get('1'):
+                    data[index] = '1'
+            elif key == pynput.keyboard.KeyCode.from_char('2'):
+                if data[weapon] and data[weapon].get('2'):
+                    data[index] = '2'
 
     with pynput.keyboard.Listener(on_release=release) as k:
         k.join()
@@ -120,13 +135,42 @@ def suppress(data):
                 data[tab] = 3
                 counter = 0
                 winsound.Beep(600, 200)  # 通知武器识别结束
-                data[weapon1] = first
-                data[weapon2] = second
-                print('----------')
-                print(first)
-                print(second)
+                data[weapon] = {
+                    '1': first,
+                    '2': second,
+                }
                 continue
-        # todo
+        if data[right] != 0:
+            data[right] = 0
+            # 检测姿态
+            data[attitude] = pubg.attitude()
+            # 射击模式
+            data[mode] = pubg.mode()
+            # 激活武器
+            # todo
+        if data[fire]:
+            # 只要开火就默认是右键瞄准射击而不是腰射
+
+            # 判断是否识别了背包中的武器
+            if not data[weapon]:
+                continue
+            # 判断当前选定的武器是否需要压枪
+            gun = data[weapon].get(data[index])
+            if gun and not gun.suppress:
+                continue
+            # 判断射击模式, 突击步枪/冲锋枪 才可能是全自动模式
+            # 这里有个额外的效果, 如果是 None, 说明当前要么没枪, 要么枪不需要压
+            if data[mode] != 'auto':
+                print('非全自动')
+                continue
+            # 判断是否有子弹
+            if not pubg.bullet():
+                print('弹夹空')
+                continue
+            # 判断姿态
+            factor = gun.factor * gun.attitude(data[attitude])
+            print(factor)
+
 
 
 if __name__ == '__main__':

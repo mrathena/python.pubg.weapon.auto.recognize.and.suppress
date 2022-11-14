@@ -24,7 +24,8 @@ region = 'region'
 points = 'points'
 muzzle = 'muzzle'
 switch = 'switch'
-bullet = 'bullet'  # 子弹
+bullet = 'bullet'
+active = 'active'
 backpack = 'backpack'
 foregrip = 'foregrip'
 attitude = 'attitude'
@@ -118,7 +119,7 @@ detect = {
             region: (1649, 1331, 27, 31),
             points: [(3, 13), (8, 13), (14, 13), (19, 13)]
         },
-        armed: {  # 是否持有武器(比如有武器但用拳头就是未持有武器)
+        active: {  # 识别当前使用的武器序号
 
         },
     },
@@ -220,7 +221,6 @@ translation = {
 # 武器数据, 在列表中的武器才会执行压制
 weapons = {
     'M416': {
-        mode: True,  # 支持射击模式检测
         interval: 86,  # 全自动射击间隔
         attitude: {  # 姿态影响因子
             stand: 1,

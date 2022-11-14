@@ -171,15 +171,25 @@ class Timer:
 class Image:
 
     @staticmethod
-    def gray(img):
+    def gray(img, max=False):
         """
         灰度化
         :param img: OpenCV BGR
+        :param max: 使用BGR3通道中的最大值作为灰度色值
         """
         """
         BGR3通道色值取平均值就是灰度色值, 灰度图将BGR3通道转换为灰度通道
         """
-        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if not max:
+            return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        else:
+            new = np.zeros(img.shape[:2], np.uint8)
+            for row in range(0, img.shape[0]):
+                for col in range(0, img.shape[1]):
+                    (b, g, r) = img[row][col]
+                    value = (b if b >= g else g)
+                    new[row][col] = (value if value >= r else r)
+            return new
 
     @staticmethod
     def binary(img, adaptive=False, threshold=None, block=3, c=1):
@@ -357,6 +367,13 @@ from structure import Weapon
 
 class Pubg:
 
+    @staticmethod
+    def game():
+        """
+        是否游戏窗体在最前
+        """
+        return '绝地求生' in GetWindowText(GetForegroundWindow())
+
     def __init__(self):
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
@@ -369,12 +386,6 @@ class Pubg:
         self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=self.binary, remove=self.remove)
         self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=self.binary, remove=self.remove)
         self.std_names = cfg.detect.get(self.key).get(cfg.weapon).get(cfg.name)
-
-    def game(self):
-        """
-        是否游戏窗体在最前
-        """
-        return '绝地求生' in GetWindowText(GetForegroundWindow())
 
     def backpack(self):
         """

@@ -12,7 +12,6 @@ class Weapon:
         self.data = cfg.weapons.get(self.name)
         self.suppress = True if self.data else False  # 该武器是否可以执行压制
         if self.data:
-            self.mode = self.data.get(cfg.mode)  # 该武器是否可以执行射击模式检测
             self.interval = self.data.get(cfg.interval)  # 射击间隔
             self.ballistic = self.data.get(cfg.ballistic)  # 垂直弹道
             self.factor = self.data.get(cfg.sight).get(self.sight, 1) \
