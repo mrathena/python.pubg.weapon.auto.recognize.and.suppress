@@ -394,7 +394,7 @@ class Pubg:
         # 灰度化
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # 二值化
-        _, img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
+        _, img = cv2.threshold(img, 230, 255, cv2.THRESH_BINARY)
         # cv2.imwrite(f'{int(time.perf_counter_ns())}.jpg', img)
         # 判断射击模式
         counter = 0

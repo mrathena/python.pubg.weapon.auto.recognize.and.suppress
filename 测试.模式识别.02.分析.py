@@ -21,7 +21,7 @@ for name, img in rets:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     plt.subplot(row, col, counter)
     plt.imshow(gray, cmap='gray')
-    print(gray[3][13])
+    print(gray[3][13], gray[8][13], gray[14][13], gray[19][13])
     # cv2.imwrite(rf'image/3440.1440/weapon/mode/_g_{counter}.jpg', img)
 
     counter += 1
