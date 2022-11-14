@@ -1,4 +1,6 @@
 import os
+import time
+
 import cv2
 import d3dshot
 import mss as pymss
@@ -393,11 +395,13 @@ class Pubg:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # 二值化
         _, img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
+        # cv2.imwrite(f'{int(time.perf_counter_ns())}.jpg', img)
         # 判断射击模式
         counter = 0
         points = data.get(cfg.points)
         for point in points:
-            if img[point] == 0:
+            # print(img[point])
+            if img[point] == 255:
                 counter += 1
         if counter == 1:
             return cfg.only
