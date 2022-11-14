@@ -176,28 +176,58 @@ class Image:
         灰度化
         :param img: OpenCV BGR
         """
+        """
+        BGR3通道色值取平均值就是灰度色值, 灰度图将BGR3通道转换为灰度通道
+        """
         return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     @staticmethod
-    def binary(img, threshold=None):
+    def binary(img, adaptive=False, threshold=None, block=3, c=1):
         """
-        全局二值化
+        二值化
         :param img: 灰度图
-        :param threshold: 二值化阈值, 大于该值的转为白色, 其他值转为黑色
+        :param adaptive: 是否自适应二值化
+        :param threshold: 二值化阈值(全局二值化), 大于该值的转为白色, 其他值转为黑色
+        :param block: 分割的邻域大小(自适应二值化). 值越大, 参与计算阈值的邻域面积越大, 细节轮廓就变得越少, 整体轮廓将越粗越明显
+        :param c: 常数(自适应二值化), 可复数. 值越大, 每个邻域内计算出的阈值将越小, 转换为 maxVal 的点将越多, 整体图像白色像素将越多
         """
-        _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+        if not adaptive:
+            # 全局二值化
+            _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+            """
+            threshold(src, thresh, maxVal, type, dst=None)
+                src: 灰度图
+                thresh: 阈值
+                maxVal: 指定的最大色值
+                type:
+                    THRESH_BINARY: 二值化, 大于阈值的赋最大色值, 其他赋0
+                    THRESH_BINARY_INV: 二值化反转, 与 THRESH_BINARY 相反, 大于阈值的赋0, 其他赋最大色值
+                    THRESH_TRUNC: 截断操作, 大于阈值的赋最大色值, 其他不变
+                    THRESH_TOZERO: 化零操作, 大于阈值的不变, 其他赋0
+                    THRESH_TOZERO_INV: 化零操作反转, 大于阈值的赋0, 其他不变
+            """
+        else:
+            # 自适应二值化
+            img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=block, C=c)
+            """
+            adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C, dst=None)
+                src: 灰度图
+                maxValue: 指定的最大色值
+                adaptiveMethod: 自适应方法。有2种：ADAPTIVE_THRESH_MEAN_C 或 ADAPTIVE_THRESH_GAUSSIAN_C
+                    ADAPTIVE_THRESH_MEAN_C，为局部邻域块的平均值，该算法是先求出块中的均值。
+                    ADAPTIVE_THRESH_GAUSSIAN_C，为局部邻域块的高斯加权和。该算法是在区域中(x, y)周围的像素根据高斯函数按照他们离中心点的距离进行加权计算。
+                thresholdType: 二值化方法，只能选 THRESH_BINARY 或者 THRESH_BINARY_INV
+                    THRESH_BINARY: 二值化, 大于阈值的赋最大色值, 其他赋0
+                    THRESH_BINARY_INV: 二值化反转, 与 THRESH_BINARY 相反, 大于阈值的赋0, 其他赋最大色值
+                blockSize: 分割计算的区域大小，取奇数
+                    当blockSize越大，参与计算阈值的区域也越大，细节轮廓就变得越少，整体轮廓越粗越明显
+                C：常数，每个区域计算出的阈值的基础上在减去这个常数作为这个区域的最终阈值，可以为负数
+                    当C越大，每个像素点的N*N邻域计算出的阈值就越小，中心点大于这个阈值的可能性也就越大，设置成255的概率就越大，整体图像白色像素就越多，反之亦然。
+            """
         return img
 
     @staticmethod
-    def cut(img, region):
-        """
-        从 img 中截取 region 范围. 入参图片需为 OpenCV 格式
-        """
-        left, top, width, height = region
-        return img[top:top + height, left:left + width]
-
-    @staticmethod
-    def remove_small_objects(img, threshold):
+    def binary_remove_small_objects(img, threshold):
         """
         消除二值图像中面积小于某个阈值的连通域(消除孤立点)
         :param img: 二值图像(白底黑图)
@@ -214,66 +244,15 @@ class Image:
         return 255 - resMatrix  # 本来输出的是黑底百图, 这里特意转换了黑白
 
     @staticmethod
-    def convert(img, gray=False, binary=False, remove=False, threshold=10):
+    def similarity(img1, img2, block=10):
         """
-        图片(OpenCV BGR 格式)做灰度化和二值化处理
-        """
-        if gray:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            if binary:
-                # 自适应二值化
-                img = cv2.adaptiveThreshold(img, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType=cv2.THRESH_BINARY, blockSize=3, C=1)
-                if remove:
-                    # 消除二值图像孤立点
-                    img = Image.remove_small_objects(img, threshold)
-        return img
-
-    @staticmethod
-    def read(path, gray=False, binary=False, remove=False, threshold=10):
-        """
-        读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
-        """
-        img = cv2.imread(path)
-        img = Image.convert(img, gray=gray, binary=binary, remove=remove, threshold=threshold)
-        return img
-
-    @staticmethod
-    def load(directory, gray=False, binary=False, remove=False, threshold=10):
-        """
-        递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
-        """
-        imgs = []
-        for item in os.listdir(directory):
-            path = os.path.join(directory, item)
-            if os.path.isdir(path):
-                temp = Image.load(path, gray, binary, remove, threshold)
-                imgs.extend(temp)
-            elif os.path.isfile(path):
-                name = os.path.splitext(item)[0]
-                img = Image.read(path, gray, binary, remove, threshold)
-                imgs.append((name, img))
-        return imgs if imgs else None
-
-    @staticmethod
-    def similarity(img1, img2, gray=False, binary=False, remove=False, threshold=10, block=10):
-        """
-        两张相同宽高和通道数的 OpenCV BGR 格式图片
-        或 两张相同 shape OpenCV BGR 格式图片 经过指定的灰度化与二值化处理后的图片
-        简单求的相似度(图片需经过灰度化与二值化处理)
+        求两张二值化图片的相似度(简单实现)
         :param img1: 图片1
         :param img2: 图片2
-        :param gray: 图片是否灰做度化处理
-        :param binary: 在灰度化处理的基础上, 图片是否做二值化处理
-        :param remove: 是否消除二值图像中的孤立点
-        :param threshold: 消除二值图像中的孤立点的面积阈值
         :param block: 分块对比的块边长, 从1开始, 边长越大精度越低
         """
         if img1.shape != img2.shape:
             return 0
-        img1 = Image.convert(img1, gray, binary, remove, threshold)
-        img2 = Image.convert(img2, gray, binary, remove, threshold)
-        # cv2.imwrite('1.jpg', img1)
-        # cv2.imwrite('2.jpg', img2)
         # 遍历图片, 计算同一位置相同色占总色数的比例
         height, width = img1.shape  # 经过处理后, 通道数只剩1个了
         # 相似度列表
@@ -301,6 +280,76 @@ class Image:
         # print(similarities)
         return sum(similarities) / len(similarities)
 
+    @staticmethod
+    def cut(img, region):
+        """
+        从 img 中截取 region 范围. 入参图片需为 OpenCV 格式
+        """
+        left, top, width, height = region
+        return img[top:top + height, left:left + width]
+
+    @staticmethod
+    def convert(img, gray=False, binary=None, remove=None):
+        """
+        图片(OpenCV BGR 格式)做灰度化和二值化处理
+        :param img: OpenCV BGR 图片
+        :param gray: 是否做灰度化处理
+        :param binary: dict 格式, 非 None 做二值化处理
+            具体参照 binary 方法的参数说明
+            adaptive: 是否自适应二值化
+            threshold: 非自适应二值化, 二值化阈值
+            block: 自适应二值化邻域大小
+            c: 常数
+        :param remove: dict 格式, 非 None 做孤立点消除操作
+            threshold: 连通域面积阈值, 小于该面积的连通域将被消除(黑转白)
+        """
+        if gray:
+            img = Image.gray(img)
+            if binary:
+                if not isinstance(binary, dict):
+                    return img
+                adaptive = binary.get('adaptive')
+                threshold = binary.get('threshold')
+                block = binary.get('block')
+                c = binary.get('c')
+                img = Image.binary(img, adaptive, threshold, block, c)
+                if remove:
+                    if not isinstance(remove, dict):
+                        return img
+                    threshold = remove.get('threshold')
+                    img = Image.binary_remove_small_objects(img, threshold)
+        return img
+
+    @staticmethod
+    def read(path, gray=False, binary=None, remove=None):
+        """
+        读取一张图片(OpenCV BGR 格式)并做灰度化和二值化处理
+        :param path: 图片路径
+        :param gray: 是否做灰度化处理
+        :param binary: dict 格式, 非 None 做二值化处理
+        :param remove: dict 格式, 非 None 做孤立点消除操作
+        """
+        img = cv2.imread(path)
+        img = Image.convert(img, gray, binary, remove)
+        return img
+
+    @staticmethod
+    def load(directory, gray=False, binary=None, remove=None):
+        """
+        递归载入指定路径下的所有图片(OpenCV BGR 格式), 按照 (name, img) 的格式组合成为列表并返回
+        """
+        imgs = []
+        for item in os.listdir(directory):
+            path = os.path.join(directory, item)
+            if os.path.isdir(path):
+                temp = Image.load(path, gray, binary, remove)
+                imgs.extend(temp)
+            elif os.path.isfile(path):
+                name = os.path.splitext(item)[0]
+                img = Image.read(path, gray, binary, remove)
+                imgs.append((name, img))
+        return imgs if imgs else None
+
 
 import cfg
 from structure import Weapon
@@ -311,12 +360,14 @@ class Pubg:
     def __init__(self):
         w, h = Monitor.resolution()
         self.key = f'{w}.{h}'  # 分辨率键
-        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=True, remove=True)
-        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon/attachment/sight/1', gray=True, binary=True, remove=True)
-        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon/attachment/sight/2', gray=True, binary=True, remove=True)
-        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon/attachment/muzzle', gray=True, binary=True, remove=True)
-        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=True, remove=True)
-        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=True, remove=True)
+        self.binary = {'adaptive': True, 'block': 3, 'c': 1}
+        self.remove = {'threshold': 10}
+        self.std_img_backpack = Image.read(rf'image/{self.key}/backpack.png', gray=True, binary=self.binary, remove=self.remove)
+        self.std_imgs_sight_1 = Image.load(rf'image/{self.key}/weapon/attachment/sight/1', gray=True, binary=self.binary, remove=self.remove)
+        self.std_imgs_sight_2 = Image.load(rf'image/{self.key}/weapon/attachment/sight/2', gray=True, binary=self.binary, remove=self.remove)
+        self.std_imgs_muzzle = Image.load(rf'image/{self.key}/weapon/attachment/muzzle', gray=True, binary=self.binary, remove=self.remove)
+        self.std_imgs_foregrip = Image.load(rf'image/{self.key}/weapon/attachment/foregrip', gray=True, binary=self.binary, remove=self.remove)
+        self.std_imgs_stock = Image.load(rf'image/{self.key}/weapon/attachment/stock', gray=True, binary=self.binary, remove=self.remove)
         self.std_names = cfg.detect.get(self.key).get(cfg.weapon).get(cfg.name)
 
     def game(self):
@@ -331,7 +382,7 @@ class Pubg:
         """
         region = cfg.detect.get(self.key).get(cfg.backpack)
         img = Capturer.grab(win=True, region=region, convert=True)
-        img = Image.convert(img, gray=True, binary=True, remove=True)
+        img = Image.convert(img, gray=True, binary=self.binary, remove=self.remove)
         return Image.similarity(self.std_img_backpack, img) > 0.9
 
     def weapon(self):
@@ -439,9 +490,9 @@ class Pubg:
         识别武器名称, 入参图片需为 OpenCV 格式
         """
         # 截图灰度化
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = Image.gray(img)
         # 截图二值化
-        ret, img = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY)
+        img = Image.binary(img, threshold=254)
         # 数纯白色点
         height, width = img.shape
         counter = 0
@@ -455,7 +506,7 @@ class Pubg:
         """
         识别武器配件, 入参图片需为 OpenCV 格式
         """
-        img = Image.convert(img, gray=True, binary=True, remove=True)
+        img = Image.convert(img, gray=True, binary=self.binary, remove=self.remove)
         for name, standard in imgs:
             similarity = Image.similarity(standard, img)
             # print(similarity, name)
