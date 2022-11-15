@@ -1,11 +1,12 @@
+import ctypes
 import multiprocessing
 import time
 from multiprocessing import Process
-
+from win32gui import GetCursorPos
 import pynput  # pip install pynput
 import winsound
 
-from toolkit import Pubg
+from toolkit import Pubg, Timer
 
 end = 'end'
 tab = 'tab'
@@ -47,7 +48,7 @@ def mouse(data):
             elif button == pynput.mouse.Button.left:
                 data[fire] = pressed
                 if pressed:
-                    data[timestamp] = time.perf_counter_ns()
+                    data[timestamp] = time.time_ns()
             elif button == pynput.mouse.Button.right:
                 if pressed:
                     data[right] = 1
@@ -55,8 +56,8 @@ def mouse(data):
                 # 侧上键
                 if pressed:
                     print('========== ==========')
-                    if data[weapon]:
-                        for key, value in data[weapon].items():
+                    if data[weapons]:
+                        for key, value in data[weapons].items():
                             print(f'{key}: {value}')
                     print(f'index: {data[index]}, {data[attitude]}, {data[firemode]}')
 
@@ -117,10 +118,36 @@ def keyboard(data):
 
 def suppress(data):
 
+    try:
+        driver = ctypes.CDLL('logitech.driver.dll')
+        ok = driver.device_open() == 1  # 该驱动每个进程可打开一个实例
+        if not ok:
+            print('Error, GHUB or LGS driver not found')
+    except FileNotFoundError:
+        print('Error, DLL file not found')
+
+    def move(x, y, absolute=False):
+        if ok:
+            if x == 0 and y == 0:
+                return
+            mx, my = x, y
+            if absolute:
+                ox, oy = GetCursorPos()
+                mx = x - ox
+                my = y - oy
+            driver.moveR(mx, my, True)
+
     pubg = Pubg()
     winsound.Beep(800, 200)
 
     counter = 0  # 检测计数器, 防止因不正常状态导致背包检测和武器识别陷入死循环, 10个循环内没有结果就会强制退出
+
+    def show():
+        print('==========')
+        if data[weapons]:
+            for key, value in data[weapons].items():
+                print(f'{key}: {value}')
+        print(f'index: {data[index]}, {data[attitude]}, {data[firemode]}')
 
     while True:
 
@@ -150,14 +177,16 @@ def suppress(data):
                 data[tab] = 3
                 counter = 0
                 winsound.Beep(600, 200)  # 通知武器识别结束
-                data[weapon] = {
+                data[weapons] = {
                     1: first,
                     2: second,
                 }
+                show()
+                data[weapon] = first  # todo
                 continue
         if data[index] != 0:  # 检测当前激活的是几号武器
             data[index] = 0
-            time.sleep(0.2)  # 防止右下角激活还没有改变
+            time.sleep(0.2)  # 防止UI还没有改变
             if not data[weapons]:  # 如果还没有识别过背包中的武器, 则不检测当前激活的是几号武器
                 continue
             count = 0  # 如果识别过背包中的武器, 但识别到的都是 None, 则不检测当前激活的是几号武器
@@ -166,12 +195,15 @@ def suppress(data):
                     count += 1
             if count == 0:
                 continue
-            data[weapon] = data[weapons].get(pubg.index())  # 检测当前激活的是几号武器
+            # data[weapon] = data[weapons].get(pubg.index())  # 检测当前激活的是几号武器  # todo
+            show()
             continue
         if data[right] != 0:  # 右键检测
             data[right] = 0
+            time.sleep(0.2)  # 防止UI还没有改变
             data[attitude] = pubg.attitude()  # 检测角色姿态
             data[firemode] = pubg.firemode()  # 检测射击模式
+            show()
         if data[fire]:  # 开火检测, 默认开火前一定按下了右键, 做了右键检测
             gun = data[weapon]
             if gun is None:  # 如果不确定当前武器则不压枪
@@ -185,8 +217,20 @@ def suppress(data):
                 print('弹夹空')
                 continue
             # ----------
-            factor = gun.factor * gun.attitude(data[attitude])
-            print(factor)
+            t = time.time_ns() - data[timestamp]
+            print('----------')
+            print(Timer.cost(t))
+            base = gun.interval * 1_000_000
+            i = t // base  # 当前是弹道中的第几个
+            distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
+            print(distance, gun.factor, gun.attitude(data[attitude]))
+            move(0, distance)  # 下移鼠标
+            t = time.time_ns() - data[timestamp]
+            left = base - t % base
+            time.sleep(left / 1_000_000_000)
+            t = time.time_ns() - data[timestamp]
+            print(t // base)
+
 
 
 if __name__ == '__main__':

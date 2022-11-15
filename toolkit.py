@@ -512,12 +512,10 @@ class Pubg:
         # 截图模式部分
         # original = Capturer.grab(win=True, region=region, convert=True)
         original = Image.read(rf'image/test/1668496773254551600.png')
-        original = Image.read(rf'image/test/1668496803409255500.png')
-        original = Image.read(rf'image/test/1668496776095474200.png')
         img = Image.gray(original)
-        cv2.imshow('res', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('res', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         img = Image.binary(img, adaptive=True, block=9)
         # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
         # 识别存在的武器序号
@@ -626,12 +624,48 @@ class Pubg:
         img = Image.cut(img, region)
         img = Image.gray(img, True)
         # img = Image.binary(img, adaptive=True, block=9)
-        img = Image.binary(img, threshold=230)
+        # img = Image.binary(img, threshold=230)
         # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
 
-        cv2.imshow('res', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('res', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
+        # 方式1, 找最多的颜色, 不太行
+        data = {}
+        height, width = img.shape
+        for row in range(0, height):
+            for col in range(0, width):
+                counter = data.get(img[row, col])
+                if counter:
+                    counter += 1
+                else:
+                    counter = 1
+                data[img[row, col]] = counter
+        key = -1
+        counter = 0
+        for k, v in data.items():
+            if v > counter:
+                key = k
+                counter = v
+        print(f'最多的颜色:', key, counter)
+
+        # 方式2, 找大于某值的颜色数
+        height, width = img.shape
+        counter = 0
+        for row in range(0, height):
+            for col in range(0, width):
+                if img[row, col] > 210:
+                    counter += 1
+        print(f'大于某值数:', counter)
+
+        # 方式3, 最大颜色值
+        value = -1
+        for row in range(0, height):
+            for col in range(0, width):
+                if img[row, col] > value:
+                    value = img[row, col]
+        print(f'最大颜色值:', value)
 
         return False
 
