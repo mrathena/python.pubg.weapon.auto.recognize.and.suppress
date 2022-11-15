@@ -18,8 +18,8 @@ def mouse():
             if button == pynput.mouse.Button.x2:
                 return False
             elif button == pynput.mouse.Button.x1:
-                # 截图, 3440×1440: (2253, 125, 260, 42)
-                img = grab((2253, 125, 260, 42))
+                # 截图, 3440×1440:
+                img = grab((2810, 1250, 240, 153))
                 mss.tools.to_png(img.rgb, img.size, output=f'image/test/{time.time_ns()}.png')
                 winsound.Beep(800, 200)
 
