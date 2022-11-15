@@ -467,7 +467,7 @@ class Pubg:
         """
         射击模式识别, 只限突击步枪和冲锋枪
         """
-        data = cfg.detect.get(self.key).get(cfg.mode)
+        data = cfg.detect.get(self.key).get(cfg.firemode)
         region = data.get(cfg.region)
         # 截图模式部分
         img = Capturer.grab(win=True, region=region, convert=True)
@@ -500,6 +500,67 @@ class Pubg:
         投掷武器,近战武器和单发火箭炮等,用光后不会导致切换武器
         能量和药包等消耗品,使用前如果持有武器,使用后会切回该武器,使用前未持有武器,使用后不会切换武器
         """
+        """
+        测试发现
+        主界面上右下角武器位和主武器只有下面3种情况
+        1号位上显示1号武器
+        1号位上显示1号武器, 2号位上显示2号武器
+        1号位上显示2号武器
+        """
+        data = cfg.detect.get(self.key).get(cfg.active)
+        region = data.get(cfg.region)
+        # 截图模式部分
+        img = Capturer.grab(win=True, region=region, convert=True)
+        # img = Image.read(rf'image/test/1668492318224542900.png')
+        img = Image.gray(img)
+        img = Image.binary(img, adaptive=True, block=9)
+        # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
+        # 识别存在的武器序号
+        indexes = []
+        one = data.get(cfg.one)
+        counter = 0
+        for point in one.get(1):
+            # print(point, img[point])
+            if img[point] == 0:
+                counter += 1
+        if counter == len(one.get(1)):
+            indexes.append(1)
+            counter = 0
+            two = data.get(cfg.two)
+            # print()
+            for point in two:
+                # print(point, img[point])
+                if img[point] == 0:
+                    counter += 1
+            if counter == len(two):
+                indexes.append(2)
+        else:
+            counter = 0
+            # print()
+            for point in one.get(2):
+                # print(point, img[point])
+                if img[point] == 0:
+                    counter += 1
+            if counter == len(one.get(2)):
+                indexes.append(2)
+        print(indexes)
+        # 根据识别到的武器序号判断激活的武器
+        if len(indexes) == 0:
+            return None
+        if len(indexes) == 1:
+            # 识别1号位是否激活
+            active = True
+            return indexes[0] if True else None
+        if len(indexes) == 2:
+            # 识别1号位是否激活
+            active = True
+            if active:
+                return 1
+            else:
+                # 判断2号位是否激活
+                active = True
+                return 2 if active else None
+        # 其他情况
         return None
 
     """
