@@ -1,5 +1,4 @@
 import time
-
 import mss
 import pynput
 import winsound
@@ -19,10 +18,10 @@ def mouse():
             if button == pynput.mouse.Button.x2:
                 return False
             elif button == pynput.mouse.Button.x1:
+                # 截图, 3440×1440: (2253, 125, 260, 42)
+                img = grab((2253, 125, 260, 42))
+                mss.tools.to_png(img.rgb, img.size, output=f'image/test/{time.time_ns()}.png')
                 winsound.Beep(800, 200)
-                # 截图, 3440×1440
-                img = grab((1374, 1312, 66, 59))
-                mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/attitude/stand/{time.time_ns()}.png')
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()

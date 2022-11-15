@@ -21,7 +21,7 @@ def mouse():
                 winsound.Beep(800, 200)
                 # 截图, 3440×1440
                 img = grab((2214, 332, 62, 62))
-                mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/muzzle/{int(time.time())}.png')
+                mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.attachment/muzzle/{time.time_ns()}.png')
 
     with pynput.mouse.Listener(on_click=down) as m:
         m.join()

@@ -20,7 +20,7 @@ def mouse():
             elif button == pynput.mouse.Button.x1:
                 # 截图, 3440×1440: (2253, 125, 260, 42)
                 img = grab((2253, 125, 260, 42))
-                mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.name/{int(time.time())}.png')
+                mss.tools.to_png(img.rgb, img.size, output=f'image/3440.1440/weapon.name/{time.time_ns()}.png')
                 winsound.Beep(800, 200)
 
     with pynput.mouse.Listener(on_click=down) as m:
