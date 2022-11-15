@@ -15,7 +15,7 @@ imgs = Image.load(rf'image/test')
 for name, img in imgs:
 
     img = Image.gray(img, True)
-    # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
+    cv2.imwrite(rf'image/test/{name}.jpg', img)
 
     img = Image.binary(img, adaptive=True, block=9)
     # img = Image.binary(img, threshold=210)

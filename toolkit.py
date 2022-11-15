@@ -510,14 +510,15 @@ class Pubg:
         data = cfg.detect.get(self.key).get(cfg.active)
         region = data.get(cfg.region)
         # 截图模式部分
-        img = Capturer.grab(win=True, region=region, convert=True)
-        # img = Image.read(rf'image/test/1668492318224542900.png')
-        img = Image.gray(img)
+        # original = Capturer.grab(win=True, region=region, convert=True)
+        original = Image.read(rf'image/test/1668492261904782600.png')
+        img = Image.gray(original)
         img = Image.binary(img, adaptive=True, block=9)
         # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
         # 识别存在的武器序号
         indexes = []
         one = data.get(cfg.one)
+        two = data.get(cfg.two)
         counter = 0
         for point in one.get(1):
             # print(point, img[point])
@@ -526,13 +527,12 @@ class Pubg:
         if counter == len(one.get(1)):
             indexes.append(1)
             counter = 0
-            two = data.get(cfg.two)
             # print()
-            for point in two:
+            for point in two.get(2):
                 # print(point, img[point])
                 if img[point] == 0:
                     counter += 1
-            if counter == len(two):
+            if counter == len(two.get(2)):
                 indexes.append(2)
         else:
             counter = 0
@@ -549,16 +549,16 @@ class Pubg:
             return None
         if len(indexes) == 1:
             # 识别1号位是否激活
-            active = True
-            return indexes[0] if True else None
+            active = self.active(original, one)
+            return indexes[0] if active else None
         if len(indexes) == 2:
             # 识别1号位是否激活
-            active = True
+            active = self.active(original, one)
             if active:
                 return 1
             else:
                 # 判断2号位是否激活
-                active = True
+                active = self.active(original, two)
                 return 2 if active else None
         # 其他情况
         return None
@@ -616,6 +616,19 @@ class Pubg:
         stock = self.attachment(self.std_imgs_stock, Image.cut(img, config.get(cfg.stock)))
         return Weapon(name, sight, muzzle, foregrip, stock)
 
+    def active(self, img, config):
+        region = config.get(cfg.region)
+        img = Image.cut(img, region)
+        img = Image.gray(img, True)
+        # img = Image.binary(img, adaptive=True, block=9)
+        # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
+
+        cv2.imshow('res', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+        return False
 
 
 

@@ -1,6 +1,8 @@
-import time
+from toolkit import Pubg
 
-print(time.time_ns())
+pubg = Pubg()
+
+pubg.index()
 
 
 
