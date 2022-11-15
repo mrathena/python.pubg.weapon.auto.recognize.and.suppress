@@ -463,7 +463,7 @@ class Pubg:
         # 不是3种姿态
         return None
 
-    def mode(self):
+    def firemode(self):
         """
         射击模式识别, 只限突击步枪和冲锋枪
         """
@@ -490,6 +490,16 @@ class Pubg:
         elif counter == 4:
             return cfg.auto
         # 非四种射击模式
+        return None
+
+    def index(self):
+        """
+        1/2号武器识别, 0:未持有1/2武器, 1:持有1号武器, 2:持有2号武器
+        判定时机:
+        鼠标滚轮滚动/1/2/3/4/5/G(切雷)/F(落地捡枪)
+        投掷武器,近战武器和单发火箭炮等,用光后不会导致切换武器
+        能量和药包等消耗品,使用前如果持有武器,使用后会切回该武器,使用前未持有武器,使用后不会切换武器
+        """
         return None
 
     """
