@@ -21,10 +21,10 @@ recognize = 'recognize'
 timestamp = 'timestamp'
 init = {
     end: False,  # 退出标记
-    switch: False,  # 压枪开关
+    switch: True,  # 压枪开关
     tab: 0,  # 背包检测信号, 非0触发检测. Tab键触发修改, 用于检测背包界面中的武器信息
     weapons: None,  # 背包界面中的两把主武器信息, 字典格式, {1:武器1, 2:武器2}
-    index: 0,  # 激活检测信号, 非0触发检测. 鼠标滚轮滚动/1/2/3/4/5/G(切雷)/F(落地捡枪)/Tab(调整位置) 等按键触发修改
+    index: 0,  # 激活检测信号, 非0触发检测. 鼠标滚轮滚动/1/2/3/4/5/G(切雷)/F(落地捡枪)/X(收起武器)/Tab(调整位置)/ 等按键触发修改
     weapon: None,  # 当前持有的主武器
     right: 0,  # 右键检测信号, 非0触发检测. 右键触发修改, 包括当前的角色姿态, 当前激活的武器, 武器的射击模式
     attitude: None,  # 姿态, stand:站, squat:蹲, prone:爬, 开火时检测(开火时要按右键,按右键后会出现姿态标识)
@@ -107,6 +107,8 @@ def keyboard(data):
             elif key == pynput.keyboard.KeyCode.from_char('g'):
                 data[index] = 1
             elif key == pynput.keyboard.KeyCode.from_char('f'):
+                data[index] = 1
+            elif key == pynput.keyboard.KeyCode.from_char('x'):
                 data[index] = 1
 
     with pynput.keyboard.Listener(on_release=release) as k:

@@ -496,7 +496,7 @@ class Pubg:
         """
         1/2号武器识别, 0:未持有1/2武器, 1:持有1号武器, 2:持有2号武器
         判定时机:
-        鼠标滚轮滚动/1/2/3/4/5/G(切雷)/F(落地捡枪)/Tab(调整位置)
+        鼠标滚轮滚动/1/2/3/4/5/G(切雷)/F(落地捡枪)/X(收起武器)/Tab(调整位置)
         投掷武器,近战武器和单发火箭炮等,用光后不会导致切换武器
         能量和药包等消耗品,使用前如果持有武器,使用后会切回该武器,使用前未持有武器,使用后不会切换武器
         """
@@ -511,8 +511,13 @@ class Pubg:
         region = data.get(cfg.region)
         # 截图模式部分
         # original = Capturer.grab(win=True, region=region, convert=True)
-        original = Image.read(rf'image/test/1668492261904782600.png')
+        original = Image.read(rf'image/test/1668496773254551600.png')
+        original = Image.read(rf'image/test/1668496803409255500.png')
+        original = Image.read(rf'image/test/1668496776095474200.png')
         img = Image.gray(original)
+        cv2.imshow('res', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         img = Image.binary(img, adaptive=True, block=9)
         # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
         # 识别存在的武器序号
@@ -621,12 +626,12 @@ class Pubg:
         img = Image.cut(img, region)
         img = Image.gray(img, True)
         # img = Image.binary(img, adaptive=True, block=9)
+        img = Image.binary(img, threshold=230)
         # cv2.imwrite(rf'image/result/{time.time_ns()}.jpg', img)
 
         cv2.imshow('res', img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
 
         return False
 
