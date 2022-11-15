@@ -224,7 +224,12 @@ def suppress(data):
             i = t // base  # 当前是弹道中的第几个
             distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
             print(distance, gun.factor, gun.attitude(data[attitude]))
-            move(0, distance * 2)  # 下移鼠标
+            for i in range(0, distance * 2):
+                begin = time.perf_counter_ns()
+                while time.perf_counter_ns() - begin < 1_000_000:
+                    pass
+                move(0, 1)
+            # move(0, distance * 2)  # 下移鼠标
             t = time.time_ns() - data[timestamp]
             left = base - t % base
             time.sleep(left / 1_000_000_000)
