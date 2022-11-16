@@ -14,7 +14,19 @@ class Weapon:
         if self.data:
             self.interval = self.data.get(cfg.interval)  # 射击间隔
             self.ballistic = self.data.get(cfg.ballistic)  # 垂直弹道
-            self.factor = self.data.get(cfg.sight).get(self.sight, 1) * self.data.get(cfg.muzzle).get(self.muzzle, 1) * self.data.get(cfg.foregrip).get(self.foregrip, 1) * self.data.get(cfg.stock).get(self.stock, 1)
+            self.factor = 1
+            attachment = self.data.get(cfg.sight)
+            if attachment:
+                self.factor *= attachment.get(self.sight, 1)
+            attachment = self.data.get(cfg.muzzle)
+            if attachment:
+                self.factor *= attachment.get(self.muzzle, 1)
+            attachment = self.data.get(cfg.foregrip)
+            if attachment:
+                self.factor *= attachment.get(self.foregrip, 1)
+            attachment = self.data.get(cfg.stock)
+            if attachment:
+                self.factor *= attachment.get(self.stock, 1)
 
     def attitude(self, attitude):
         """
