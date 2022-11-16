@@ -10,7 +10,9 @@ from toolkit import Pubg, Timer
 
 end = 'end'
 tab = 'tab'
+ads = 'ads'
 fire = 'fire'
+temp = 'temp'
 index = 'index'
 right = 'right'
 switch = 'switch'
@@ -32,6 +34,8 @@ init = {
     firemode: None,  # 射击模式, auto:全自动, semi:半自动(点射), only:单发
     timestamp: None,  # 按下左键开火时的时间戳
     fire: False,  # 开火状态
+    ads: 2,  # 基准倍数
+    temp: None,  # 调试下压力度数据使用
 }
 
 
@@ -57,7 +61,7 @@ def mouse(data):
                     with open('debug', 'r') as file:
                         try:
                             exec(file.read())
-                            print(data['temp'])
+                            print(data[temp])
                         except Exception as e:
                             print(e.args)
                             print(str(e))
@@ -230,9 +234,9 @@ def suppress(data):
             cost = time.time_ns() - data[timestamp]  # 开火时长
             base = gun.interval * 1_000_000  # 基准间隔时间转纳秒
             i = cost // base  # 本回合的压枪力度数值索引
-            # distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
-            distance = int(data['temp'][i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
-            print(f'开火时长:{Timer.cost(cost)}, 力度索引:{i}, 基准力度:{gun.ballistic[i]}, 实际力度:{distance}, 武器因子:{gun.factor}, 姿态因子:{gun.attitude(data[attitude])}')
+            distance = int(data[ads] * gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
+            distance = int(data[ads] * gun.ballistic[i] * data[temp])  # 下移距离, 去除武器因子和姿态因子的影响, 用于测试当前弹道力度下某单一因素的影响因子值(比如测不同握把的影响)
+            print(f'开火时长:{Timer.cost(cost)}, {i}, 压制力度:{distance}, 武器因子:{gun.factor}, 姿态因子:{gun.attitude(data[attitude])}')
             cost = time.time_ns() - data[timestamp]
             left = base - cost % base  # 本回合剩余时间纳秒
             mean = left / distance  # 平缓压枪每个实际力度的延时

@@ -14,10 +14,7 @@ class Weapon:
         if self.data:
             self.interval = self.data.get(cfg.interval)  # 射击间隔
             self.ballistic = self.data.get(cfg.ballistic)  # 垂直弹道
-            self.factor = self.data.get(cfg.sight).get(self.sight, 1) \
-                          * self.data.get(cfg.muzzle).get(self.muzzle, 1) \
-                          * self.data.get(cfg.foregrip).get(self.foregrip, 1) \
-                          * self.data.get(cfg.stock).get(self.stock, 1)
+            self.factor = self.data.get(cfg.sight).get(self.sight, 1) * self.data.get(cfg.muzzle).get(self.muzzle, 1) * self.data.get(cfg.foregrip).get(self.foregrip, 1) * self.data.get(cfg.stock).get(self.stock, 1)
 
     def attitude(self, attitude):
         """
