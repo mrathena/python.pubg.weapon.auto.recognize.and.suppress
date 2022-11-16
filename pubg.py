@@ -52,6 +52,16 @@ def mouse(data):
             elif button == pynput.mouse.Button.right:
                 if pressed:
                     data[right] = 1
+            elif button == pynput.mouse.Button.x2:  # todo 调试弹道
+                if pressed:
+                    with open('debug', 'r') as file:
+                        try:
+                            exec(file.read())
+                            print(data['temp'])
+                        except Exception as e:
+                            print(e.args)
+                            print(str(e))
+                            print(repr(e))
 
     def scroll(x, y, dx, dy):
         if Pubg.game():
@@ -220,7 +230,8 @@ def suppress(data):
             cost = time.time_ns() - data[timestamp]  # 开火时长
             base = gun.interval * 1_000_000  # 基准间隔时间转纳秒
             i = cost // base  # 本回合的压枪力度数值索引
-            distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
+            # distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
+            distance = int(data['temp'][i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
             print(f'开火时长:{Timer.cost(cost)}, 力度索引:{i}, 基准力度:{gun.ballistic[i]}, 实际力度:{distance}, 武器因子:{gun.factor}, 姿态因子:{gun.attitude(data[attitude])}')
             cost = time.time_ns() - data[timestamp]
             left = base - cost % base  # 本回合剩余时间纳秒
