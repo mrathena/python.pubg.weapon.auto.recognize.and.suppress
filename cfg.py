@@ -239,7 +239,7 @@ weapons = {
             prone: 0.5,
         },
         sight: {  # 瞄具影响因子
-            '2x Scope': 1.7,
+            '2x Scope': 1.8,
             '3x Scope': 2.6,
             '4x Scope': 4,
             '6x Scope': 6,
