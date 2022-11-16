@@ -231,7 +231,7 @@ translation = {
 
 # 武器数据, 在列表中的武器才会执行压制
 weapons = {
-    'M416.ME': {
+    'M416': {
         interval: 85,  # 全自动射击间隔
         attitude: {  # 姿态影响因子
             stand: 1,
@@ -239,8 +239,8 @@ weapons = {
             prone: 0.5,
         },
         sight: {  # 瞄具影响因子
-            '2x Scope': 1.8,
-            '3x Scope': 2.6,
+            '2x Scope': 2,
+            '3x Scope': 3,
             '4x Scope': 4,
             '6x Scope': 6,
             'Holographic Sight': 1,
@@ -951,7 +951,7 @@ weapons = {
             "6x Scope": 5.1
         }
     },
-    "M416": {
+    "M4162": {
         "ballistic": [
             20,
             26,
