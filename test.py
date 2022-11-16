@@ -1,8 +1,7 @@
-from toolkit import Pubg
 
-pubg = Pubg()
 
-pubg.index()
+
+print(107 // 100)
 
 
 

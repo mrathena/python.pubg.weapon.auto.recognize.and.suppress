@@ -52,14 +52,6 @@ def mouse(data):
             elif button == pynput.mouse.Button.right:
                 if pressed:
                     data[right] = 1
-            elif button == pynput.mouse.Button.x2:
-                # 侧上键
-                if pressed:
-                    print('========== ==========')
-                    if data[weapons]:
-                        for key, value in data[weapons].items():
-                            print(f'{key}: {value}')
-                    print(f'index: {data[index]}, {data[attitude]}, {data[firemode]}')
 
     def scroll(x, y, dx, dy):
         if Pubg.game():
@@ -97,8 +89,14 @@ def keyboard(data):
                     data[index] = 1
             elif key == pynput.keyboard.KeyCode.from_char('1'):
                 data[index] = 1
+                # todo
+                if data[weapons] is not None and data[weapons].get(1) is not None:
+                    data[weapon] = data[weapons].get(1)
             elif key == pynput.keyboard.KeyCode.from_char('2'):
                 data[index] = 1
+                # todo
+                if data[weapons] is not None and data[weapons].get(2) is not None:
+                    data[weapon] = data[weapons].get(2)
             elif key == pynput.keyboard.KeyCode.from_char('3'):
                 data[index] = 1
             elif key == pynput.keyboard.KeyCode.from_char('4'):
@@ -145,8 +143,8 @@ def suppress(data):
     def show():
         print('==========')
         if data[weapons]:
-            for key, value in data[weapons].items():
-                print(f'{key}: {value}')
+            for k, v in data[weapons].items():
+                print(f'{k}: {v}')
         print(f'index: {data[index]}, {data[attitude]}, {data[firemode]}')
 
     while True:
@@ -182,7 +180,6 @@ def suppress(data):
                     2: second,
                 }
                 show()
-                data[weapon] = first  # todo
                 continue
         if data[index] != 0:  # 检测当前激活的是几号武器
             data[index] = 0
@@ -207,34 +204,32 @@ def suppress(data):
         if data[fire]:  # 开火检测, 默认开火前一定按下了右键, 做了右键检测
             gun = data[weapon]
             if gun is None:  # 如果不确定当前武器则不压枪
+                print('武器不确定')
                 continue
             if gun.suppress is False:  # 如果当前武器不支持压枪
+                print('武器不支持')
                 continue
-            if data[firemode] != 'auto':  # 全自动才压枪(突击步枪/冲锋枪). 这里有隐藏效果,未持枪时一定不是全自动
-                print('非全自动')
+            data[firemode] = pubg.firemode()
+            if data[firemode] != 'auto':  # 全自动才压枪(突击步枪/冲锋枪). 这里有隐藏效果,不在对局中/未持枪/背包界面等情景下返回值都是None
+                print('武器非自动')
                 continue
             if not pubg.bullet():  # 如果弹夹空了
-                print('弹夹空')
+                print('武器弹夹空')
                 continue
-            # ----------
-            t = time.time_ns() - data[timestamp]
             print('----------')
-            print(Timer.cost(t))
-            base = gun.interval * 1_000_000
-            i = t // base  # 当前是弹道中的第几个
+            cost = time.time_ns() - data[timestamp]  # 开火时长
+            base = gun.interval * 1_000_000  # 基准间隔时间转纳秒
+            i = cost // base  # 本回合的压枪力度数值索引
             distance = int(gun.ballistic[i] * (gun.factor * gun.attitude(data[attitude])))  # 下移距离
-            print(distance, gun.factor, gun.attitude(data[attitude]))
-            for i in range(0, distance * 2):
+            print(f'开火时长:{Timer.cost(cost)}, 力度索引:{i}, 基准力度:{gun.ballistic[i]}, 实际力度:{distance}, 武器因子:{gun.factor}, 姿态因子:{gun.attitude(data[attitude])}')
+            cost = time.time_ns() - data[timestamp]
+            left = base - cost % base  # 本回合剩余时间纳秒
+            mean = left / distance  # 平缓压枪每个实际力度的延时
+            for i in range(0, distance):
                 begin = time.perf_counter_ns()
-                while time.perf_counter_ns() - begin < 1_000_000:
+                while time.perf_counter_ns() - begin < mean:
                     pass
                 move(0, 1)
-            # move(0, distance * 2)  # 下移鼠标
-            t = time.time_ns() - data[timestamp]
-            left = base - t % base
-            time.sleep(left / 1_000_000_000)
-            t = time.time_ns() - data[timestamp]
-            print(t // base)
 
 
 if __name__ == '__main__':
