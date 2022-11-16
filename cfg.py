@@ -992,9 +992,12 @@ weapons = {
             46,
             46,
             46,
+            46,
+            46,
+            46,
             46
         ],
-        "interval": 86,
+        "interval": 85,
         "attitude": {
             "stand": 1,
             "prone": 0.5,
