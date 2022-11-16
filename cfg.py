@@ -241,26 +241,26 @@ weapons = {
         sight: {  # 瞄具影响因子
             '2x Scope': 1.7,
             '3x Scope': 2.6,
-            '4x Scope': 3.6,
-            '6x Scope': 5.1,
+            '4x Scope': 4,
+            '6x Scope': 6,
             'Holographic Sight': 1,
             'Red Dot Sight': 1,
         },
         muzzle: {  # 枪口影响因子
-            'Compensator AR': 0.84,
-            'Flash Hider AR': 0.84,
+            'Compensator AR': 0.78,
+            'Flash Hider AR': 0.87,
             'Suppressor AR': 1,
         },
         foregrip: {  # 握把影响因子
             'Angled Foregrip': 1,
-            'Haalfgrip': 0.77,
+            'Haalfgrip': 0.8,
             'Laser Sight': 1,
-            'Lightweight Grip': 0.77,
+            'Lightweight Grip': 0.92,
             'Thumbgrip': 0.92,
             'Vertical Foregrip': 0.77,
         },
         stock: {  # 枪托影响因子
-            'Heavy Stock': 0.965,
+            'Heavy Stock': 0.9,
             'Tactical Stock': 0.965,
         },
         ballistic: [36, 23, 24, 23, 33, 34, 34, 34, 40, 40, 40, 40, 41, 41, 41, 42, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 50, 51, 50, 51, 50, 50, 50]
