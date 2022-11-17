@@ -239,7 +239,7 @@ weapons = {
             prone: 0.5,
         },
         sight: {  # 瞄具影响因子
-            '2x Scope': 2,
+            '2x Scope': 1.9,
             '3x Scope': 3,
             '4x Scope': 4,
             '6x Scope': 6,
@@ -313,25 +313,25 @@ weapons = {
         "interval": 88,
         "attitude": {
             "stand": 1,
-            "prone": 0.75,
-            "squat": 0.53
+            "prone": 0.5,
+            "squat": 0.75
         },
         "stock": {
             "Tactical Stock": 0.97
         },
         "foregrip": {
-            "Haalfgrip": 0.77,
-            "Lightweight Grip": 0.77,
+            "Haalfgrip": 0.8,
+            "Lightweight Grip": 0.92,
             "Thumbgrip": 0.92,
             "Angled Foregrip": 1,
             "Vertical Foregrip": 0.77
         },
         "sight": {
-            "none": 1.06,
-            "2x Scope": 1.7,
-            "3x Scope": 2.6,
-            "4x Scope": 3.6,
-            "6x Scope": 5.1
+            "none": 1,
+            "2x Scope": 1.8,
+            "3x Scope": 2.8,
+            "4x Scope": 4,
+            "6x Scope": 6
         },
         "muzzle": {
             "Compensator AR": 0.84,
