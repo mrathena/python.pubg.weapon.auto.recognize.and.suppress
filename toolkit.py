@@ -340,6 +340,7 @@ class Image:
         :param remove: dict 格式, 非 None 做孤立点消除操作
         """
         img = cv2.imread(path)
+        # img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)  # 适配中文字符路径
         img = Image.convert(img, gray, binary, remove)
         return img
 
