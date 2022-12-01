@@ -2,7 +2,6 @@ import ctypes
 import multiprocessing
 import time
 from multiprocessing import Process
-from win32gui import GetCursorPos
 import pynput  # pip install pynput
 import winsound
 
@@ -140,16 +139,9 @@ def suppress(data):
     except FileNotFoundError:
         print('Error, DLL file not found')
 
-    def move(x, y, absolute=False):
+    def move(x, y):
         if ok:
-            if x == 0 and y == 0:
-                return
-            mx, my = x, y
-            if absolute:
-                ox, oy = GetCursorPos()
-                mx = x - ox
-                my = y - oy
-            driver.moveR(mx, my, True)
+            driver.moveR(x, y, True)
 
     pubg = Pubg()
     winsound.Beep(800, 200)
