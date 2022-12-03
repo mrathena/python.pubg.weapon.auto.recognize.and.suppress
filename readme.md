@@ -25,10 +25,11 @@
 
 ```
 mss
-pywin32
 pynput
+pywin32
 pyinstaller
 opencv-python
+scikit-image
 ```
 
 ### 打包

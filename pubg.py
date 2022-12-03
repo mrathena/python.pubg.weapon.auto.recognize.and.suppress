@@ -104,12 +104,12 @@ def keyboard(data):
                     data[index] = 1
             elif key == pynput.keyboard.KeyCode.from_char('1'):
                 data[index] = 1
-                # todo
+                # todo, 如果 pubg.index() 完善, 则该分支里下行的 IF 要删除
                 if data[weapons] is not None and data[weapons].get(1) is not None:
                     data[weapon] = data[weapons].get(1)
             elif key == pynput.keyboard.KeyCode.from_char('2'):
                 data[index] = 1
-                # todo
+                # todo, 如果 pubg.index() 完善, 则该分支里下行的 IF 要删除
                 if data[weapons] is not None and data[weapons].get(2) is not None:
                     data[weapon] = data[weapons].get(2)
             elif key == pynput.keyboard.KeyCode.from_char('3'):
