@@ -35,7 +35,7 @@ scikit-image
 ### 打包
 
 ```
-pyinstaller pubg.py -p cfg.py -p structure.py -p toolkit.py -p mouse.device.lgs.dll
+pyinstaller pubg.py -p cfg.py -p structure.py -p toolkit.py -p logitech.driver.dll
 -F: 打包成一个 exe 文件
 -w: 运行不显示黑框
 ```
