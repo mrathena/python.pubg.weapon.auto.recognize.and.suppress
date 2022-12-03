@@ -159,10 +159,10 @@ def suppress(data):
 
         if data.get(end):  # 退出程序
             break
+        if not pubg.game():  # 如果不在游戏中
+            continue
         if not data.get(switch):
             data[tab] = 0  # 开关关闭时, 每次循环都会重置背包检测信号
-            continue
-        if not pubg.game():  # 如果不在游戏中
             continue
         if data[tab] == 1:  # 背包界面检测
             counter += 1
