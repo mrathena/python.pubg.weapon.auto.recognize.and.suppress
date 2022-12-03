@@ -1,5 +1,5 @@
 
-### 链接
+# 链接
 
 [CSDN Python Pubg 武器自动识别与压枪 全过程记录](https://blog.csdn.net/mrathena/article/details/128129079)
 
@@ -9,7 +9,7 @@
 
 [百度网盘 罗技键鼠驱动](https://pan.baidu.com/s/1VkE2FQrNEOOkW6tCOLZ-kw?pwd=yh3s)
 
-### 说明
+# 说明
 
 半成品
 
@@ -21,7 +21,7 @@
 
 压枪数据来自于 [GitHub PUBGRecognizeAndGunpress](https://github.com/Cjy-CN/PUBGRecognizeAndGunpress), 没有做精修(其实是不会), 勉强能用, 可调整初始化参数中的 ADS 来修改基准倍率
 
-### 依赖
+# 依赖
 
 ```
 mss
@@ -32,7 +32,7 @@ opencv-python
 scikit-image
 ```
 
-### 打包
+# 打包
 
 ```
 pyinstaller pubg.py -p cfg.py -p structure.py -p toolkit.py -p logitech.driver.dll
