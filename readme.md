@@ -1,13 +1,11 @@
 
 # 链接
 
-[CSDN Python Pubg 武器自动识别与压枪 全过程记录](https://blog.csdn.net/mrathena/article/details/128129079)
+> [GitHub python.apex.weapon.auto.recognize.and.suppress](https://github.com/mrathena/python.apex.weapon.auto.recognize.and.suppress)
 
-[CSDN Python Apex 武器自动识别与压枪 全过程记录](https://blog.csdn.net/mrathena/article/details/126918389)
+> [CSDN Python Apex YOLO V5 6.2 目标检测 全过程记录](https://blog.csdn.net/mrathena/article/details/126860226)
 
-[CSDN Python Apex YOLO V5 6.2 目标检测 全过程记录](https://blog.csdn.net/mrathena/article/details/126860226)
-
-[百度网盘 罗技键鼠驱动](https://pan.baidu.com/s/1VkE2FQrNEOOkW6tCOLZ-kw?pwd=yh3s)
+> [百度网盘 罗技键鼠驱动](https://pan.baidu.com/s/1VkE2FQrNEOOkW6tCOLZ-kw?pwd=yh3s)
 
 # 说明
 
