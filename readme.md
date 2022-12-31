@@ -33,7 +33,7 @@
 conda create -n pubg python=3.10 # 使用 conda 创建名为 pubg 的虚拟环境
 conda remove -n pubg --all # 删除虚拟环境
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple # 安装依赖
-pyinstaller pubg.py -p cfg.py -p toolkit.py -p mouse.device.lgs.dll # 打包
+pyinstaller pubg.py -p cfg.py -p toolkit.py -p structure.py -p mouse.device.lgs.dll # 打包
   -F: 打包成一个 exe 文件
   -w: 运行时不显示黑框
 ```
