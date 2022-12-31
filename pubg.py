@@ -132,7 +132,9 @@ def keyboard(data):
 def suppress(data):
 
     try:
-        driver = ctypes.CDLL('logitech.driver.dll')
+        import os
+        root = os.path.abspath(os.path.dirname(__file__))
+        driver = ctypes.CDLL(f'{root}/logitech.driver.dll')
         ok = driver.device_open() == 1  # 该驱动每个进程可打开一个实例
         if not ok:
             print('Error, GHUB or LGS driver not found')
