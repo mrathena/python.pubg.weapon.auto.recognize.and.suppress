@@ -230,6 +230,8 @@ def suppress(data):
             cost = time.time_ns() - data[timestamp]  # 开火时长
             base = gun.interval * 1_000_000  # 基准间隔时间转纳秒
             i = cost // base  # 本回合的压枪力度数值索引
+            if i >= len(gun.ballistic):
+                continue
             distance = int(data[ads] * gun.ballistic[i] * gun.factor * gun.attitude(data[attitude]))  # 下移距离
             distance = int(data[ads] * gun.ballistic[i] * data[temp]) if data[temp] else distance  # 下移距离, 去除武器因子和姿态因子的影响, 用于测试当前弹道力度下某单一因素的影响因子值(比如测不同握把的影响)
             print(f'开火时长:{Timer.cost(cost)}, {i}, 压制力度:{distance}, 武器因子:{gun.factor}, 姿态因子:{gun.attitude(data[attitude])}')
